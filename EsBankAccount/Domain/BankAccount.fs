@@ -2,7 +2,8 @@ module EsBankAccount.Domain.BankAccount
 
 open System
 
-type Money = decimal
+type Amount = decimal
+type Money = Amount
 
 type Transaction =
     { Amount: Money
@@ -14,7 +15,7 @@ type Event =
     | Closed    of DateTime
 
 type State =
-    { Balance: decimal }
+    { Balance: Amount }
     static member Initial =
         { Balance = 0m }
 
@@ -29,18 +30,19 @@ let evolve state event =
 
 
 type Command =
-    | Deposit  of amount: Money * date: DateTime
-    | Withdraw of amount: Money * date: DateTime 
-    | Close    of date: DateTime
+    | Deposit  of Money * DateTime
+    | Withdraw of Money * DateTime * thresholdLimit: Amount option
+    | Close    of DateTime
 
 type Error =
-    | BalanceIsNegative
+    | BalanceIsNegative  of Amount
+    | ThresholdExceeded of upcomingBalance: Amount * thresholdLimit: Amount
 
 module private Closing =
 
     let checkBalance state =
         if state.Balance < 0m
-        then Error BalanceIsNegative
+        then BalanceIsNegative state.Balance |> Error
         else Ok state
 
     let close date state =
@@ -48,16 +50,30 @@ module private Closing =
             Withdrawn { Amount = state.Balance; Date = date }
           Closed date ]
 
-let decide command state : Result<Event list, Error> =
+module private Withdrawal =
+    
+    let checkThresholdLimit thresholdLimit amount state =
+        match thresholdLimit with
+        | Some thresholdLimit when state.Balance - amount < thresholdLimit ->
+            ThresholdExceeded (state.Balance - amount, thresholdLimit) |> Error
+        | _ ->
+            Ok state
+
+    let withdraw amount date =
+        [ Withdrawn { Amount = amount; Date = date } ]
+
+let decide command state =
     match command with
     | Deposit (amount, date) ->
         Ok [ Deposited { Amount = amount; Date = date } ]
-    | Withdraw (amount, date) ->
-        Ok [ Withdrawn { Amount = amount; Date = date } ]
+    | Withdraw (amount, date, thresholdLimit) ->
+        state
+        |> Withdrawal.checkThresholdLimit thresholdLimit amount
+        |> Result.map (fun _ -> Withdrawal.withdraw amount date)
     | Close date ->
         state
         |> Closing.checkBalance
-        |> Result.bind (Closing.close date >> Ok)
+        |> Result.map (Closing.close date)
 
 let build, rebuild, handle =
-    EventSourcing.createDsl State.Initial evolve decide
+    Decider.createDsl State.Initial evolve decide

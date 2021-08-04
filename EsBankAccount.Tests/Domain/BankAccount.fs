@@ -33,7 +33,7 @@ let ``make a deposit and calculate the balance`` () =
 let ``make a withdrawal`` () =
     spec {
         When
-            ( Withdraw (10m, DateTime.MinValue) )
+            ( Withdraw (10m, DateTime.MinValue, None) )
         Then
             [ Withdrawn { Amount = 10m; Date = DateTime.MinValue } ]
     }
@@ -44,11 +44,29 @@ let ``make a withdrawal and calculate the balance`` () =
         Given
             [ Withdrawn { Amount = 10m; Date = DateTime.MinValue } ]
         When
-            ( Withdraw (15m, DateTime.MinValue) )
+            ( Withdraw (15m, DateTime.MinValue, None) )
         Then
             [ Withdrawn { Amount = 15m; Date = DateTime.MinValue } ]
         ThenState
             { Balance = -25m }
+    }
+
+[<Fact>]
+let ``when withdrawing, the threshold limit should not be exceeded`` () =
+    let thresholdLimit = -500m
+    spec {
+        GivenState
+            { Balance = -400m }
+        When
+            ( Withdraw (100m, DateTime.MinValue, Some thresholdLimit) )
+        Then
+            [ Withdrawn { Amount = 100m; Date = DateTime.MinValue } ]
+        ThenState
+            { Balance = thresholdLimit }
+        When
+            ( Withdraw (1m, DateTime.MinValue, Some thresholdLimit) )
+        ThenError
+            ( ThresholdExceeded (-501m, thresholdLimit) )
     }
 
 [<Fact>]
@@ -94,5 +112,5 @@ let ``negative balance cannot be closed`` () =
         When
             ( Close DateTime.MinValue )
         ThenError
-            BalanceIsNegative
+            ( BalanceIsNegative -50m )
     }

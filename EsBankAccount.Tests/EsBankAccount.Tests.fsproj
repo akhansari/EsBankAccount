@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Domain\Dsl.fs" />
+    <Compile Include="Domain\DeciderSpecs.fs" />
     <Compile Include="Domain\BankAccount.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

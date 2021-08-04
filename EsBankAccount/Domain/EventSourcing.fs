@@ -10,7 +10,7 @@ type Build<'State, 'Event> = 'State -> 'Event list -> 'State
 type Rebuild<'State, 'Event> = 'Event list -> 'State
 
 [<RequireQualifiedAccess>]
-module EventSourcing =
+module Decider =
 
     (*
     this function seems not interesting
