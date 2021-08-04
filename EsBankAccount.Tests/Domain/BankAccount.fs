@@ -5,7 +5,7 @@ open Xunit
 
 open EsBankAccount.Domain.BankAccount
 
-let spec = DeciderSpec (State.Initial, decide, build)
+let spec = DeciderSpecResult (State.Initial, decide, build)
 
 [<Fact>]
 let ``make a deposit`` () =
@@ -84,4 +84,15 @@ let ``close the account but do not withdraw if nothing left`` () =
             ( Close DateTime.MinValue )
         Then
             [ Closed DateTime.MinValue ]
+    }
+
+[<Fact>]
+let ``negative balance cannot be closed`` () =
+    spec {
+        GivenState
+            { Balance = -50m }
+        When
+            ( Close DateTime.MinValue )
+        ThenError
+            BalanceIsNegative
     }

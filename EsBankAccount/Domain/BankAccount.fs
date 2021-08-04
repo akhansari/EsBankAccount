@@ -27,21 +27,37 @@ let evolve state event =
     | Closed _ ->
         state
 
+
 type Command =
     | Deposit  of amount: Money * date: DateTime
     | Withdraw of amount: Money * date: DateTime 
     | Close    of date: DateTime
 
-let decide command state =
-    match command with
-    | Deposit (amount, date) ->
-        [ Deposited { Amount = amount; Date = date } ]
-    | Withdraw (amount, date) ->
-        [ Withdrawn { Amount = amount; Date = date } ]
-    | Close date ->
+type Error =
+    | BalanceIsNegative
+
+module private Closing =
+
+    let checkBalance state =
+        if state.Balance < 0m
+        then Error BalanceIsNegative
+        else Ok state
+
+    let close date state =
         [ if state.Balance > 0m then
             Withdrawn { Amount = state.Balance; Date = date }
           Closed date ]
+
+let decide command state : Result<Event list, Error> =
+    match command with
+    | Deposit (amount, date) ->
+        Ok [ Deposited { Amount = amount; Date = date } ]
+    | Withdraw (amount, date) ->
+        Ok [ Withdrawn { Amount = amount; Date = date } ]
+    | Close date ->
+        state
+        |> Closing.checkBalance
+        |> Result.bind (Closing.close date >> Ok)
 
 let build, rebuild, handle =
     EventSourcing.createDsl State.Initial evolve decide
