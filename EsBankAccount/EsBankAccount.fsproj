@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <ItemGroup>
+    <Compile Include="Domain\EventSourcing.fs" />
+    <Compile Include="Domain\BankAccount.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Bolero" Version="0.17.25" />
+    <PackageReference Include="Bolero.Build" Version="0.17.25" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.8" />
+  </ItemGroup>
+
+</Project>

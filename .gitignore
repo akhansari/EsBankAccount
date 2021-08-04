@@ -1,0 +1,10 @@
+*.suo
+*.user
+.vs/
+.idea
+*.ncrunchsolution*
+nCrunchTemp_*
+_NCrunch_*
+
+[Bb]in/
+[Oo]bj/
