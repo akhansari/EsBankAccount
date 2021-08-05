@@ -1,10 +1,10 @@
 namespace EsBankAccount.Domain
 
-/// Given the current state and what happened, evolve to a new state.
-type Evolve<'State, 'Event> = 'State -> 'Event -> 'State
 /// Given what has been requested and the current state, decide what should happen.
 type Decide<'Command, 'State, 'Outcome> = 'Command -> 'State -> 'Outcome
-/// Given the current state and the history, build the new state.
+/// Given the current state and what happened, evolve to a new state.
+type Evolve<'State, 'Event> = 'State -> 'Event -> 'State
+/// Given the current state and what happened recently, build the new state.
 type Build<'State, 'Event> = 'State -> 'Event list -> 'State
 /// Given the history, rebuild the current state.
 type Rebuild<'State, 'Event> = 'Event list -> 'State

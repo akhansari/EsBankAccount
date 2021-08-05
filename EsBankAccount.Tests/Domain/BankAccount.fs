@@ -26,7 +26,7 @@ let ``make a deposit and calculate the balance`` () =
         Then
             [ Deposited { Amount = 50m; Date = DateTime.MinValue } ]
         ThenState
-            { Balance = 150m }
+            { State.Initial with Balance = 150m }
     }
 
 [<Fact>]
@@ -48,7 +48,7 @@ let ``make a withdrawal and calculate the balance`` () =
         Then
             [ Withdrawn { Amount = 15m; Date = DateTime.MinValue } ]
         ThenState
-            { Balance = -25m }
+            { State.Initial with Balance = -25m }
     }
 
 [<Fact>]
@@ -56,13 +56,13 @@ let ``when withdrawing, the threshold limit should not be exceeded`` () =
     let thresholdLimit = -500m
     spec {
         GivenState
-            { Balance = -400m }
+            { State.Initial with Balance = -400m }
         When
             ( Withdraw (100m, DateTime.MinValue, Some thresholdLimit) )
         Then
             [ Withdrawn { Amount = 100m; Date = DateTime.MinValue } ]
         ThenState
-            { Balance = thresholdLimit }
+            { State.Initial with Balance = thresholdLimit }
         When
             ( Withdraw (1m, DateTime.MinValue, Some thresholdLimit) )
         ThenError
@@ -78,39 +78,56 @@ let ``calculate the balance of withdrawals and deposits`` () =
               Withdrawn { Amount =   5m; Date = DateTime.MinValue }
               Deposited { Amount = 100m; Date = DateTime.MinValue } ]
         ThenState
-            { Balance = 135m }
+            { State.Initial with Balance = 135m }
+    }
+
+[<Fact>]
+let ``close the account`` () =
+    spec {
+        When
+            ( Close DateTime.MinValue )
+        Then
+            [ Closed DateTime.MinValue ]
+        ThenState
+            { State.Initial with IsClosed = true }
     }
 
 [<Fact>]
 let ``close the account and withdraw the remaining amount`` () =
     spec {
         GivenState
-            { Balance = 100m }
+            { State.Initial with Balance = 100m }
         When
             ( Close DateTime.MinValue )
         Then
             [ Withdrawn { Amount = 100m; Date = DateTime.MinValue }
               Closed DateTime.MinValue ]
-    }
-
-[<Fact>]
-let ``close the account but do not withdraw if nothing left`` () =
-    spec {
-        GivenState
-            { Balance = 0m }
-        When
-            ( Close DateTime.MinValue )
-        Then
-            [ Closed DateTime.MinValue ]
+        ThenState
+            { State.Initial with IsClosed = true }
     }
 
 [<Fact>]
 let ``negative balance cannot be closed`` () =
     spec {
         GivenState
-            { Balance = -50m }
+            { State.Initial with Balance = -50m }
         When
             ( Close DateTime.MinValue )
         ThenError
             ( BalanceIsNegative -50m )
+    }
+
+[<Fact>]
+let ``cannot deposit or withdraw if the account is already closed`` () =
+    spec {
+        GivenState
+            { State.Initial with IsClosed = true }
+        When
+            ( Deposit (10m, DateTime.MinValue) )
+        ThenError
+            AlreadyClosed
+        When
+            ( Withdraw (10m, DateTime.MinValue, None) )
+        ThenError
+            AlreadyClosed
     }

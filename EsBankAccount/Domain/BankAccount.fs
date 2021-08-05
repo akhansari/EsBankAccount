@@ -15,9 +15,11 @@ type Event =
     | Closed    of DateTime
 
 type State =
-    { Balance: Amount }
+    { Balance: Amount
+      IsClosed: bool }
     static member Initial =
-        { Balance = 0m }
+        { Balance = 0m
+          IsClosed = false }
 
 let evolve state event =
     match event with
@@ -26,7 +28,7 @@ let evolve state event =
     | Withdrawn transaction ->
         { state with Balance = state.Balance - transaction.Amount }
     | Closed _ ->
-        state
+        { state with IsClosed = true }
 
 
 type Command =
@@ -35,45 +37,58 @@ type Command =
     | Close    of DateTime
 
 type Error =
-    | BalanceIsNegative  of Amount
+    | BalanceIsNegative of Amount
     | ThresholdExceeded of upcomingBalance: Amount * thresholdLimit: Amount
+    | AlreadyClosed
 
-module private Closing =
+module private Check =
 
-    let checkBalance state =
+    let ifClosed state =
+        if state.IsClosed
+        then Error AlreadyClosed
+        else Ok state
+
+    let ifNegativeBalance state =
         if state.Balance < 0m
         then BalanceIsNegative state.Balance |> Error
         else Ok state
 
-    let close date state =
-        [ if state.Balance > 0m then
-            Withdrawn { Amount = state.Balance; Date = date }
-          Closed date ]
-
-module private Withdrawal =
-    
-    let checkThresholdLimit thresholdLimit amount state =
+    let thresholdLimit thresholdLimit amount state =
         match thresholdLimit with
         | Some thresholdLimit when state.Balance - amount < thresholdLimit ->
             ThresholdExceeded (state.Balance - amount, thresholdLimit) |> Error
         | _ ->
             Ok state
 
-    let withdraw amount date =
-        [ Withdrawn { Amount = amount; Date = date } ]
+let private deposit amount date =
+    [ Deposited { Amount = amount; Date = date } ]
+
+let private withdraw amount date =
+    [ Withdrawn { Amount = amount; Date = date } ]
+
+let private close date state =
+    [ if state.Balance > 0m then
+        Withdrawn { Amount = state.Balance; Date = date }
+      Closed date ]
+
+let private (<!>) r f = Result.map f r
+let private (>>=) r f = Result.bind f r
 
 let decide command state =
     match command with
     | Deposit (amount, date) ->
-        Ok [ Deposited { Amount = amount; Date = date } ]
+        state
+        |>  Check.ifClosed
+        <!> fun _ -> deposit amount date
     | Withdraw (amount, date, thresholdLimit) ->
         state
-        |> Withdrawal.checkThresholdLimit thresholdLimit amount
-        |> Result.map (fun _ -> Withdrawal.withdraw amount date)
+        |>  Check.ifClosed
+        >>= Check.thresholdLimit thresholdLimit amount
+        <!> fun _ -> withdraw amount date
     | Close date ->
         state
-        |> Closing.checkBalance
-        |> Result.map (Closing.close date)
+        |>  Check.ifNegativeBalance
+        <!> close date
 
 let build, rebuild, handle =
     Decider.createDsl State.Initial evolve decide
