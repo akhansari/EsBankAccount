@@ -1,15 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <ItemGroup>
-    <Compile Include="Domain\EventSourcing.fs" />
     <Compile Include="Domain\BankAccount.fs" />
+
+    <Compile Include="App\CommandHandler.fs" />
+
+    <Compile Include="Infra\Publisher.fs" />
+    <Compile Include="Infra\EventStore.fs" />
+
+    <Compile Include="View\BankAccountHandler.fs" />
+    <Compile Include="View\BulmaHelpers.fs" />
+    <Compile Include="View\Main.fs" />
+
     <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Bolero" Version="0.17.25" />
     <PackageReference Include="Bolero.Build" Version="0.17.25" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.8" />
+    <PackageReference Include="FSharp.SystemTextJson" Version="0.17.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.9" />
   </ItemGroup>
 
 </Project>

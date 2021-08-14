@@ -1,7 +1,6 @@
 namespace EsBankAccount.Tests.Domain
 
 open Swensen.Unquote
-open EsBankAccount.Domain
 
 type DeciderSpecState<'State, 'Outcome> =
     { State: 'State
@@ -9,8 +8,8 @@ type DeciderSpecState<'State, 'Outcome> =
 
 type DeciderSpec<'State, 'Command, 'Event>
     (initialState: 'State,
-    decide: Decide<'Command, 'State, 'Event list>,
-    build: Build<'State, 'Event>)
+    decide: 'Command -> 'State -> 'Event list,
+    evolve: 'State -> 'Event -> 'State)
     =
 
     member _.Yield _ : DeciderSpecState<'State, 'Event list> =
@@ -19,7 +18,7 @@ type DeciderSpec<'State, 'Command, 'Event>
 
     [<CustomOperation "Given">]
     member _.Given (spec, events) =
-        { spec with State = build spec.State events }
+        { spec with State = List.fold evolve spec.State events }
 
     [<CustomOperation "GivenState">]
     member _.GivenState (spec, state) =
@@ -29,7 +28,7 @@ type DeciderSpec<'State, 'Command, 'Event>
     member _.When (spec, command) =
         let events = decide command spec.State
         { spec with
-            State = build spec.State events
+            State = List.fold evolve spec.State events
             Outcome = events }
 
     [<CustomOperation "Then">]
@@ -46,8 +45,8 @@ type DeciderSpec<'State, 'Command, 'Event>
 
 type DeciderSpecResult<'State, 'Command, 'Event, 'Error>
     (initialState: 'State,
-    decide: Decide<'Command, 'State, Result<'Event list, 'Error>>,
-    build: Build<'State, 'Event>)
+    decide: 'Command -> 'State -> Result<'Event list, 'Error>,
+    evolve: 'State -> 'Event -> 'State)
     =
 
     member _.Yield _ : DeciderSpecState<'State, Result<'Event list, 'Error>> =
@@ -56,7 +55,7 @@ type DeciderSpecResult<'State, 'Command, 'Event, 'Error>
 
     [<CustomOperation "Given">]
     member _.Given (spec, events) =
-        { spec with State = build spec.State events }
+        { spec with State = List.fold evolve spec.State events }
 
     [<CustomOperation "GivenState">]
     member _.GivenState (spec, state) =
@@ -68,7 +67,7 @@ type DeciderSpecResult<'State, 'Command, 'Event, 'Error>
         { spec with
             State =
                 match result with
-                | Ok events -> build spec.State events
+                | Ok events -> List.fold evolve spec.State events
                 | Error _ -> spec.State
             Outcome = result }
 

@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <Compile Include="Domain\DeciderSpecs.fs" />
-    <Compile Include="Domain\BankAccount.fs" />
+    <Compile Include="Domain\BankAccountTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

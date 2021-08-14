@@ -2,6 +2,8 @@ module EsBankAccount.Domain.BankAccount
 
 open System
 
+let [<Literal>] DeciderName = "BankAccount"
+
 type Amount = decimal
 type Money = Amount
 
@@ -17,7 +19,9 @@ type Event =
 type State =
     { Balance: Amount
       IsClosed: bool }
-    static member Initial =
+[<RequireQualifiedAccess>]
+module State =
+    let initial =
         { Balance = 0m
           IsClosed = false }
 
@@ -90,5 +94,3 @@ let decide command state =
         |>  Check.ifNegativeBalance
         <!> close date
 
-let build, rebuild, handle =
-    Decider.createDsl State.Initial evolve decide
