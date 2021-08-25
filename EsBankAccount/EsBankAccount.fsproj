@@ -4,11 +4,13 @@
     <Compile Include="Domain\BankAccount.fs" />
 
     <Compile Include="App\CommandHandler.fs" />
+    <Compile Include="App\BankAccountProjector.fs" />
 
-    <Compile Include="Infra\Publisher.fs" />
     <Compile Include="Infra\EventStore.fs" />
+    <Compile Include="Infra\Database.fs" />
 
-    <Compile Include="View\BankAccountHandler.fs" />
+    <Compile Include="Startup\BankAccountClient.fs" />
+
     <Compile Include="View\BulmaHelpers.fs" />
     <Compile Include="View\Main.fs" />
 

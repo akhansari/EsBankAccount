@@ -19,6 +19,7 @@ type Event =
 type State =
     { Balance: Amount
       IsClosed: bool }
+
 [<RequireQualifiedAccess>]
 module State =
     let initial =
@@ -94,3 +95,5 @@ let decide command state =
         |>  Check.ifNegativeBalance
         <!> close date
 
+let isTerminal state =
+    state.IsClosed

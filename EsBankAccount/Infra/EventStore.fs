@@ -10,20 +10,31 @@ type StreamKey =
     { Name: string
       Id: string }
 
-type Connection = ConcurrentDictionary<StreamKey, ResizeArray<string>>
+type Publisher<'T> () =
+    let event = Event<'T> ()
+    let report msg =
+        try
+            event.Trigger msg
+        with e ->
+            printfn $"Publisher failed: %A{e}"
+    let agent = MailboxProcessor<'T>.Start(fun inbox -> async {
+        while true do
+            let! msg = inbox.Receive()
+            report msg
+        })
+    member _.Subscribe callback = event.Publish.Add callback
+    member _.Post = agent.Post
 
-let createConnection () : Connection =
-    ConcurrentDictionary ()
+    type Connection =
+        { Db: ConcurrentDictionary<StreamKey, ResizeArray<string>>
+          Publisher: Publisher<StreamKey * string> }
+
+let createConnection () =
+    { Db = ConcurrentDictionary ()
+      Publisher = Publisher () }
 
 let private getOrAdd (conn: Connection) key =
-    conn.GetOrAdd (key, ResizeArray ())
-
-let read<'T> conn key =
-    key
-    |> getOrAdd conn
-    |> Seq.map JsonSerializer.Deserialize<'T>
-    |> Seq.toList
-    |> async.Return
+    conn.Db.GetOrAdd (key, ResizeArray ())
 
 let private jso =
     let jso = JsonSerializerOptions ()
@@ -31,17 +42,17 @@ let private jso =
     jso.WriteIndented <- true
     jso
 
-let append<'T> (conn: Connection) key (events: 'T seq) =
-    let history = getOrAdd conn key
-    events
-    |> Seq.map (fun e -> JsonSerializer.Serialize<'T> (e, jso))
-    |> history.AddRange
+let read<'T> conn key =
+    key
+    |> getOrAdd conn
+    |> Seq.map (fun json -> JsonSerializer.Deserialize<'T> (json, jso))
+    |> Seq.toList
     |> async.Return
 
-let print (conn: Connection) =
-    for (KeyValue (key, values)) in conn do
-        printfn $"Key: %A{key}"
-        printfn "Events:"
-        for value in values do
-            printfn $"{value}"
-        printfn ""
+let append<'T> conn key (events: 'T seq) =
+    let history = getOrAdd conn key
+    for event in events do
+        let json = JsonSerializer.Serialize<'T> (event, jso)
+        conn.Publisher.Post (key, json)
+        history.Add json
+    async.Return ()
