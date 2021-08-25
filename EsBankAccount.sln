@@ -1,8 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "EsBankAccount", "EsBankAccount\EsBankAccount.fsproj", "{109BB4BB-2E37-4CC0-A633-007E085F1B93}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31613.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "EsBankAccount", "EsBankAccount\EsBankAccount.fsproj", "{109BB4BB-2E37-4CC0-A633-007E085F1B93}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "EsBankAccount.Tests", "EsBankAccount.Tests\EsBankAccount.Tests.fsproj", "{D3FD7420-2A5E-4C1C-8233-4E59B7F0B449}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "EsBankAccount.Tests", "EsBankAccount.Tests\EsBankAccount.Tests.fsproj", "{D3FD7420-2A5E-4C1C-8233-4E59B7F0B449}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E9C6CEB7-F093-4D04-8340-BE2B80024DAC}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\deploy.yaml = .github\workflows\deploy.yaml
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +27,11 @@ Global
 		{D3FD7420-2A5E-4C1C-8233-4E59B7F0B449}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3FD7420-2A5E-4C1C-8233-4E59B7F0B449}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3FD7420-2A5E-4C1C-8233-4E59B7F0B449}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3A66D709-E40F-4535-8B7A-4C9F739B6CB7}
 	EndGlobalSection
 EndGlobal

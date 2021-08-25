@@ -194,7 +194,6 @@ let view model dispatch =
         ]
     ]
 
-
 let listenToEvents initial =
     fun dispatch ->
         AddEvent >> dispatch
