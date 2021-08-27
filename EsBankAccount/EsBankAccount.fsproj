@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <ItemGroup>
+    <Compile Include="Domain\ResultBuilder.fs" />
     <Compile Include="Domain\BankAccount.fs" />
 
     <Compile Include="App\CommandHandler.fs" />

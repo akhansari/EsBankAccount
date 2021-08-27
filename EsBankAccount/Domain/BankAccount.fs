@@ -51,19 +51,19 @@ module private Check =
     let ifClosed state =
         if state.IsClosed
         then Error AlreadyClosed
-        else Ok state
+        else Ok ()
 
     let ifNegativeBalance state =
         if state.Balance < 0m
         then BalanceIsNegative state.Balance |> Error
-        else Ok state
+        else Ok ()
 
     let thresholdLimit thresholdLimit amount state =
         match thresholdLimit with
         | Some thresholdLimit when state.Balance - amount < thresholdLimit ->
             ThresholdExceeded (state.Balance - amount, thresholdLimit) |> Error
         | _ ->
-            Ok state
+            Ok ()
 
 let private deposit amount date =
     [ Deposited { Amount = amount; Date = date } ]
@@ -76,24 +76,19 @@ let private close date state =
         Withdrawn { Amount = state.Balance; Date = date }
       Closed date ]
 
-let private (<!>) r f = Result.map f r
-let private (>>=) r f = Result.bind f r
-
 let decide command state =
-    match command with
-    | Deposit (amount, date) ->
-        state
-        |>  Check.ifClosed
-        <!> fun _ -> deposit amount date
-    | Withdraw (amount, date, thresholdLimit) ->
-        state
-        |>  Check.ifClosed
-        >>= Check.thresholdLimit thresholdLimit amount
-        <!> fun _ -> withdraw amount date
-    | Close date ->
-        state
-        |>  Check.ifNegativeBalance
-        <!> close date
+    result {
+        do! Check.ifClosed state
+        match command with
+        | Deposit (amount, date) ->
+            return deposit amount date
+        | Withdraw (amount, date, thresholdLimit) ->
+            do! Check.thresholdLimit thresholdLimit amount state
+            return withdraw amount date
+        | Close date ->
+            do! Check.ifNegativeBalance state
+            return close date state
+    }
 
 let isTerminal state =
     state.IsClosed
