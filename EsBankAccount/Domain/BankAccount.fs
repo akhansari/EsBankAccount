@@ -41,30 +41,6 @@ type Command =
     | Withdraw of Money * DateTime * thresholdLimit: Amount option
     | Close    of DateTime
 
-type Error =
-    | BalanceIsNegative of Amount
-    | ThresholdExceeded of upcomingBalance: Amount * thresholdLimit: Amount
-    | AlreadyClosed
-
-module private Check =
-
-    let ifClosed state =
-        if state.IsClosed
-        then Error AlreadyClosed
-        else Ok ()
-
-    let ifNegativeBalance state =
-        if state.Balance < 0m
-        then BalanceIsNegative state.Balance |> Error
-        else Ok ()
-
-    let thresholdLimit thresholdLimit amount state =
-        match thresholdLimit with
-        | Some thresholdLimit when state.Balance - amount < thresholdLimit ->
-            ThresholdExceeded (state.Balance - amount, thresholdLimit) |> Error
-        | _ ->
-            Ok ()
-
 let private deposit amount date =
     [ Deposited { Amount = amount; Date = date } ]
 
@@ -76,6 +52,38 @@ let private close date state =
         Withdrawn { Amount = state.Balance; Date = date }
       Closed date ]
 
+
+type Error =
+    | AlreadyClosed
+    | WithdrawingError of WithdrawingError
+    | ClosingError of ClosingError
+and WithdrawingError =
+    | ThresholdExceeded of upcomingBalance: Amount * thresholdLimit: Amount
+and ClosingError =
+    | BalanceIsNegative of Amount
+
+module private Check =
+
+    let ifClosed state =
+        if state.IsClosed
+        then Error AlreadyClosed
+        else Ok ()
+
+    module Withdrawing =
+        let thresholdLimit thresholdLimit amount state =
+            match thresholdLimit with
+            | Some thresholdLimit when state.Balance - amount < thresholdLimit ->
+                ThresholdExceeded (state.Balance - amount, thresholdLimit) |> WithdrawingError |> Error
+            | _ ->
+                Ok ()
+
+    module Closing =
+        let ifNegativeBalance state =
+            if state.Balance < 0m
+            then BalanceIsNegative state.Balance |> ClosingError |> Error
+            else Ok ()
+
+
 let decide command state =
     result {
         do! Check.ifClosed state
@@ -83,12 +91,13 @@ let decide command state =
         | Deposit (amount, date) ->
             return deposit amount date
         | Withdraw (amount, date, thresholdLimit) ->
-            do! Check.thresholdLimit thresholdLimit amount state
+            do! Check.Withdrawing.thresholdLimit thresholdLimit amount state
             return withdraw amount date
         | Close date ->
-            do! Check.ifNegativeBalance state
+            do! Check.Closing.ifNegativeBalance state
             return close date state
     }
+
 
 let isTerminal state =
     state.IsClosed

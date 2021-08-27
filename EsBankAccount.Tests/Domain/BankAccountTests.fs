@@ -66,7 +66,7 @@ let ``when withdrawing, the threshold limit should not be exceeded`` () =
         When
             ( Withdraw (1m, DateTime.MinValue, Some thresholdLimit) )
         ThenError
-            ( ThresholdExceeded (-501m, thresholdLimit) )
+            ( ThresholdExceeded (-501m, thresholdLimit) |> WithdrawingError )
     }
 
 [<Fact>]
@@ -114,7 +114,7 @@ let ``negative balance cannot be closed`` () =
         When
             ( Close DateTime.MinValue )
         ThenError
-            ( BalanceIsNegative -50m )
+            ( BalanceIsNegative -50m |> ClosingError )
     }
 
 [<Fact>]

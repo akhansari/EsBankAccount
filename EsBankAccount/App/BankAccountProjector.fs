@@ -41,7 +41,7 @@ module BankAccountProjector =
                 | BankAccount.Closed _ ->
                     ()
 
-                do! loop ()
+                return! loop ()
             }
             loop ()
         )
