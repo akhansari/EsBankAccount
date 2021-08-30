@@ -4,6 +4,8 @@ open System
 
 let [<Literal>] DeciderName = "BankAccount"
 
+//===== 1. types
+
 type Amount = decimal
 type Money = Amount
 
@@ -15,6 +17,8 @@ type Event =
     | Deposited of Transaction
     | Withdrawn of Transaction
     | Closed    of DateTime
+
+//===== 2. state logic
 
 type State =
     { Balance: Amount
@@ -35,6 +39,10 @@ let evolve state event =
     | Closed _ ->
         { state with IsClosed = true }
 
+let isTerminal state =
+    state.IsClosed
+
+//===== 3. decision logic
 
 type Command =
     | Deposit  of Money * DateTime
@@ -52,6 +60,7 @@ let private close date state =
         Withdrawn { Amount = state.Balance; Date = date }
       Closed date ]
 
+//===== 4. validation
 
 type Error =
     | AlreadyClosed
@@ -83,6 +92,7 @@ module private Check =
             then BalanceIsNegative state.Balance |> ClosingError |> Error
             else Ok ()
 
+//===== 5. decision pipeline
 
 let decide command state =
     result {
@@ -97,7 +107,3 @@ let decide command state =
             do! Check.Closing.ifNegativeBalance state
             return close date state
     }
-
-
-let isTerminal state =
-    state.IsClosed

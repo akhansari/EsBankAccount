@@ -8,7 +8,10 @@
   <ItemGroup>
     <Compile Include="Domain\DeciderSpecs.fs" />
     <Compile Include="Domain\BankAccountTests.fs" />
-    <Compile Include="Program.fs" />
+
+    <Compile Include="App\CommandHandlerTests.fs" />
+
+  <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>

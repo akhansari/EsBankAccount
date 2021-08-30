@@ -25,9 +25,9 @@ type Publisher<'T> () =
     member _.Subscribe callback = event.Publish.Add callback
     member _.Post = agent.Post
 
-    type Connection =
-        { Db: ConcurrentDictionary<StreamKey, ResizeArray<string>>
-          Publisher: Publisher<StreamKey * string> }
+type Connection =
+    { Db: ConcurrentDictionary<StreamKey, ResizeArray<string>>
+      Publisher: Publisher<StreamKey * string> }
 
 let createConnection () =
     { Db = ConcurrentDictionary ()

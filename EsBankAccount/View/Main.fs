@@ -194,7 +194,7 @@ let view model dispatch =
         ]
     ]
 
-let listenToEvents initial =
+let listenToEvents _ =
     fun dispatch ->
         AddEvent >> dispatch
         |> BankAccountClient.listenToEvents
@@ -204,4 +204,4 @@ type Component () =
     inherit ProgramComponent<Model, Message>()
     override _.Program =
         Program.mkProgram (fun _ -> Model.initial, Cmd.none) update view
-       |> Program.withSubscription listenToEvents
+        |> Program.withSubscription listenToEvents
