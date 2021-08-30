@@ -10,8 +10,9 @@ let private esConn = EventStore.createConnection ()
 let private rmConn = Database.createConnection ()
 
 let private projector =
-    BankAccountProjector.create
-        (Database.addTransaction rmConn)
+    BankAccountProjector.project
+        { AddTransaction = Database.addTransaction rmConn }
+    |> MessageBus.createEventHandler
 
 let handle id command =
     async {

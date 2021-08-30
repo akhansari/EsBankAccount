@@ -9,6 +9,7 @@
 
     <Compile Include="Infra\EventStore.fs" />
     <Compile Include="Infra\Database.fs" />
+    <Compile Include="Infra\MessageBus.fs" />
 
     <Compile Include="Startup\BankAccountClient.fs" />
 

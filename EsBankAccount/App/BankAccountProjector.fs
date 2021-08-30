@@ -18,30 +18,29 @@ type TransactionModel =
 
 module BankAccountProjector =
 
-    type Agent = MailboxProcessor<AccountId * BankAccount.Event * BankAccount.State>
+    type Dependencies =
+        { AddTransaction: TransactionModel -> Async<unit> }
 
-    let create addTransaction =
-        Agent.Start (fun inbox ->
-            let rec loop () = async {
-                let! accountId, event, state = inbox.Receive ()
-
-                match event with
-                | BankAccount.Deposited transaction ->
-                    do! addTransaction
-                            { AccountId = accountId
-                              Date = transaction.Date
-                              Amount = transaction.Amount
-                              Balance = state.Balance }
-                | BankAccount.Withdrawn transaction ->
-                    do! addTransaction
-                            { AccountId = accountId
-                              Date = transaction.Date
-                              Amount = -transaction.Amount
-                              Balance = state.Balance }
-                | BankAccount.Closed _ ->
-                    ()
-
-                return! loop ()
-            }
-            loop ()
-        )
+    let project
+        (deps: Dependencies)
+        accountId event (state: BankAccount.State)
+        =
+        async {
+            match event with
+            | BankAccount.Deposited transaction ->
+                do!
+                    { AccountId = accountId
+                      Date = transaction.Date
+                      Amount = transaction.Amount
+                      Balance = state.Balance }
+                    |> deps.AddTransaction
+            | BankAccount.Withdrawn transaction ->
+                do!
+                    { AccountId = accountId
+                      Date = transaction.Date
+                      Amount = -transaction.Amount
+                      Balance = state.Balance }
+                    |> deps.AddTransaction
+            | BankAccount.Closed _ ->
+                ()
+        }
