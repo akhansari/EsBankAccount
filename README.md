@@ -73,4 +73,4 @@ Usually there is at least two kind of Deciders:
 
 - [Functional Event Sourcing](https://thinkbeforecoding.com/category/Event-Sourcing) by Jérémie Chassaing
 - [Effective F#, tips and tricks](https://gist.github.com/swlaschin/31d5a0a2c4478e82e3ed60d653c0206b) by Scott Wlaschin
-- [Equinox](https://github.com/jet/equinox) by Ruben Bartelink
+- [Equinox](https://github.com/jet/equinox) by Jet and Ruben Bartelink

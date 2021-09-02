@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <ItemGroup>
     <Compile Include="Domain\ResultBuilder.fs" />
@@ -9,7 +9,7 @@
 
     <Compile Include="Infra\EventStore.fs" />
     <Compile Include="Infra\Database.fs" />
-    <Compile Include="Infra\MessageBus.fs" />
+    <Compile Include="Infra\MessageQueue.fs" />
 
     <Compile Include="Startup\BankAccountClient.fs" />
 

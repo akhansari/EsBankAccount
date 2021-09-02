@@ -1,6 +1,6 @@
 ﻿[<RequireQualifiedAccess>]
-/// A fake message bus
-module EsBankAccount.App.MessageBus
+/// A fake message queue
+module EsBankAccount.App.MessageQueue
 
 let createEventHandler (handle: 'StreamId -> 'Event -> 'State -> Async<unit>) =
     MailboxProcessor<'StreamId * 'Event * 'State>.Start (fun inbox ->
