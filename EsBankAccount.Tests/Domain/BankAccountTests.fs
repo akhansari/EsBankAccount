@@ -5,7 +5,7 @@ open Xunit
 
 open EsBankAccount.Domain.BankAccount
 
-let spec = DeciderSpecResult (State.initial, decide, evolve)
+let spec = DeciderSpecResult (State.initial, evolve, decide)
 
 [<Fact>]
 let ``make a deposit`` () =
@@ -14,19 +14,6 @@ let ``make a deposit`` () =
             ( Deposit (10m, DateTime.MinValue) )
         Then
             [ Deposited { Amount = 10m; Date = DateTime.MinValue } ]
-    }
-
-[<Fact>]
-let ``make a deposit and calculate the balance`` () =
-    spec {
-        Given
-            [ Deposited { Amount = 100m; Date = DateTime.MinValue } ]
-        When
-            ( Deposit (50m, DateTime.MinValue) )
-        Then
-            [ Deposited { Amount = 50m; Date = DateTime.MinValue } ]
-        ThenState
-            { State.initial with Balance = 150m }
     }
 
 [<Fact>]
@@ -39,46 +26,19 @@ let ``make a withdrawal`` () =
     }
 
 [<Fact>]
-let ``make a withdrawal and calculate the balance`` () =
-    spec {
-        Given
-            [ Withdrawn { Amount = 10m; Date = DateTime.MinValue } ]
-        When
-            ( Withdraw (15m, DateTime.MinValue, None) )
-        Then
-            [ Withdrawn { Amount = 15m; Date = DateTime.MinValue } ]
-        ThenState
-            { State.initial with Balance = -25m }
-    }
-
-[<Fact>]
 let ``when withdrawing, the threshold limit should not be exceeded`` () =
     let thresholdLimit = -500m
     spec {
-        GivenState
-            { State.initial with Balance = -400m }
+        Given
+            [ Withdrawn { Amount = 400m; Date = DateTime.MinValue } ]
         When
             ( Withdraw (100m, DateTime.MinValue, Some thresholdLimit) )
         Then
             [ Withdrawn { Amount = 100m; Date = DateTime.MinValue } ]
-        ThenState
-            { State.initial with Balance = thresholdLimit }
         When
             ( Withdraw (1m, DateTime.MinValue, Some thresholdLimit) )
         ThenError
             ( ThresholdExceeded (-501m, thresholdLimit) |> WithdrawingError )
-    }
-
-[<Fact>]
-let ``calculate the balance of withdrawals and deposits`` () =
-    spec {
-        Given
-            [ Deposited { Amount =  50m; Date = DateTime.MinValue }
-              Withdrawn { Amount =  10m; Date = DateTime.MinValue }
-              Withdrawn { Amount =   5m; Date = DateTime.MinValue }
-              Deposited { Amount = 100m; Date = DateTime.MinValue } ]
-        ThenState
-            { State.initial with Balance = 135m }
     }
 
 [<Fact>]
@@ -88,29 +48,25 @@ let ``close the account`` () =
             ( Close DateTime.MinValue )
         Then
             [ Closed DateTime.MinValue ]
-        ThenState
-            { State.initial with IsClosed = true }
     }
 
 [<Fact>]
 let ``close the account and withdraw the remaining amount`` () =
     spec {
-        GivenState
-            { State.initial with Balance = 100m }
+        Given
+            [ Deposited { Amount = 100m; Date = DateTime.MinValue } ]
         When
             ( Close DateTime.MinValue )
         Then
             [ Withdrawn { Amount = 100m; Date = DateTime.MinValue }
               Closed DateTime.MinValue ]
-        ThenState
-            { State.initial with IsClosed = true }
     }
 
 [<Fact>]
 let ``negative balance cannot be closed`` () =
     spec {
-        GivenState
-            { State.initial with Balance = -50m }
+        Given
+            [ Withdrawn { Amount = 50m; Date = DateTime.MinValue } ]
         When
             ( Close DateTime.MinValue )
         ThenError
@@ -120,8 +76,8 @@ let ``negative balance cannot be closed`` () =
 [<Fact>]
 let ``cannot deposit or withdraw if the account is already closed`` () =
     spec {
-        GivenState
-            { State.initial with IsClosed = true }
+        Given
+            [ Closed DateTime.MinValue ]
         When
             ( Deposit (10m, DateTime.MinValue) )
         ThenError

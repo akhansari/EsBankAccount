@@ -7,7 +7,7 @@ let [<Literal>] DeciderName = "BankAccount"
 //===== 1. types
 
 type Amount = decimal
-type Money = Amount
+type Money  = Amount
 
 type Transaction =
     { Amount: Money
@@ -18,11 +18,11 @@ type Event =
     | Withdrawn of Transaction
     | Closed    of DateTime
 
-//===== 2. state logic
-
 type State =
     { Balance: Amount
       IsClosed: bool }
+
+//===== 2. state logic
 
 [<RequireQualifiedAccess>]
 module State =
@@ -44,11 +44,6 @@ let isTerminal state =
 
 //===== 3. decision logic
 
-type Command =
-    | Deposit  of Money * DateTime
-    | Withdraw of Money * DateTime * thresholdLimit: Amount option
-    | Close    of DateTime
-
 let private deposit amount date =
     [ Deposited { Amount = amount; Date = date } ]
 
@@ -64,8 +59,8 @@ let private close date state =
 
 type Error =
     | AlreadyClosed
-    | WithdrawingError of WithdrawingError
-    | ClosingError of ClosingError
+    | WithdrawingError  of WithdrawingError
+    | ClosingError      of ClosingError
 and WithdrawingError =
     | ThresholdExceeded of upcomingBalance: Amount * thresholdLimit: Amount
 and ClosingError =
@@ -93,6 +88,11 @@ module private Check =
             else Ok ()
 
 //===== 5. decision pipeline
+
+type Command =
+    | Deposit  of Money * DateTime
+    | Withdraw of Money * DateTime * thresholdLimit: Amount option
+    | Close    of DateTime
 
 let decide command state =
     result {

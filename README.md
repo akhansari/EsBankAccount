@@ -19,22 +19,29 @@ They are composable:
 
 <img src="assets/decider.png" alt="decider" />
 
-It's also very convenient to create [Given-When-Then](EsBankAccount.Tests/Domain/BankAccountTests.fs) tests:
+### Decider Tests
+
+It's very convenient to create [Given-When-Then](EsBankAccount.Tests/Domain/BankAccountTests.fs) tests.
 
 ```fsharp
 [<Fact>]
-let ``make a deposit and calculate the balance`` () =
+let ``close the account and withdraw the remaining amount`` () =
     spec {
         Given // history
             [ Deposited { Amount = 100m; Date = DateTime.MinValue } ]
         When  // command
-            ( Deposit (50m, DateTime.MinValue) )
+            ( Close DateTime.MinValue )
         Then  // what should happen
-            [ Deposited { Amount = 50m; Date = DateTime.MinValue } ]
-        ThenState
-            { State.initial with Balance = 150m }
+            [ Withdrawn { Amount = 100m; Date = DateTime.MinValue }
+              Closed DateTime.MinValue ]
     }
 ```
+
+There are two kinds of them:
+1. Test what is done (mandatory).\
+   We don't mind how we come up with the outcome, except the outcome has to be correct under the given condition.
+2. Test how it is done (optional).\
+   We are not concerned about the outcome. The only thing needed is to build the state in a particular way.
 
 ### Decider Structure
 

@@ -13,16 +13,16 @@ jobs:
     # uses GitHub's checkout action to checkout code form the main branch
     - uses: actions/checkout@v2
 
-    - name: Setup .NET Core SDK
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
 
     # publishes Blazor project to the release-folder
-    - name: Publish .NET Core Project
+    - name: Publish .NET Project
       run: dotnet publish EsBankAccount/EsBankAccount.fsproj -c Release -o release --nologo
 
-    # changes the base-tag in index.html from '/' to 'EsBankAccount' to match GitHub Pages repository subdirectory
+    # changes the base-tag in index.html to match GitHub Pages repository subdirectory
     - name: Change base-tag in index.html from / to EsBankAccount
       run: sed -i 's/<base href="\/">/<base href="\/EsBankAccount\/">/g' release/wwwroot/index.html
 
