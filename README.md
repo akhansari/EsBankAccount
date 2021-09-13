@@ -2,6 +2,11 @@
 
 __Work in progress__
 
+## Kata
+
+You can clone the `kata-start` branch and start practicing.\
+Follow the instructions in `BankAccountTests.fs` and `BankAccountTests.state.fs`.
+
 ## Decider
 
 Deciders should have at least an initial state and two functions:
