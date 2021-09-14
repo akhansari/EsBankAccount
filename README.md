@@ -84,5 +84,8 @@ Usually there is at least two kind of Deciders:
 ## Resources
 
 - [Functional Event Sourcing](https://thinkbeforecoding.com/category/Event-Sourcing) by Jérémie Chassaing
+- [State from Events or Events as State?](https://verraes.net/2019/08/eventsourcing-state-from-events-vs-events-as-state/) by Mathias Verraes
+- [Temporal Modelling](https://verraes.net/2019/06/talk-temporal-modelling/) by Mathias Verraes
+- [Expectations for an Event Store](https://github.com/ylorph/RandomThoughts/blob/master/2019.08.09_expectations_for_an_event_store.md) by Yves Lorphelin
 - [Effective F#, tips and tricks](https://gist.github.com/swlaschin/31d5a0a2c4478e82e3ed60d653c0206b) by Scott Wlaschin
 - [Equinox](https://github.com/jet/equinox) by Jet and Ruben Bartelink
