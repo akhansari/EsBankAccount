@@ -5,129 +5,55 @@ open Xunit
 
 open EsBankAccount.Domain.BankAccount
 
-let spec = DeciderSpecResult (State.initial, decide, evolve)
+(*
+    Start to do type-driven development by adding the minimum types for Event, State and Command.
+    Then add the initial state, also evolve and decide functions.
+    Now you can start to practice test-driven development.
+*)
+
+//let spec = DeciderSpecList<State, Command, Event> (State.initial, evolve, decide)
 
 [<Fact>]
 let ``make a deposit`` () =
+    (*
     spec {
         When
-            ( Deposit (10m, DateTime.MinValue) )
+            ...
         Then
-            [ Deposited { Amount = 10m; Date = DateTime.MinValue } ]
+            ...
     }
-
-[<Fact>]
-let ``make a deposit and calculate the balance`` () =
-    spec {
-        Given
-            [ Deposited { Amount = 100m; Date = DateTime.MinValue } ]
-        When
-            ( Deposit (50m, DateTime.MinValue) )
-        Then
-            [ Deposited { Amount = 50m; Date = DateTime.MinValue } ]
-        ThenState
-            { State.initial with Balance = 150m }
-    }
+    *)
+    Assert.True false
 
 [<Fact>]
 let ``make a withdrawal`` () =
-    spec {
-        When
-            ( Withdraw (10m, DateTime.MinValue, None) )
-        Then
-            [ Withdrawn { Amount = 10m; Date = DateTime.MinValue } ]
-    }
-
-[<Fact>]
-let ``make a withdrawal and calculate the balance`` () =
-    spec {
-        Given
-            [ Withdrawn { Amount = 10m; Date = DateTime.MinValue } ]
-        When
-            ( Withdraw (15m, DateTime.MinValue, None) )
-        Then
-            [ Withdrawn { Amount = 15m; Date = DateTime.MinValue } ]
-        ThenState
-            { State.initial with Balance = -25m }
-    }
-
-[<Fact>]
-let ``when withdrawing, the threshold limit should not be exceeded`` () =
-    let thresholdLimit = -500m
-    spec {
-        GivenState
-            { State.initial with Balance = -400m }
-        When
-            ( Withdraw (100m, DateTime.MinValue, Some thresholdLimit) )
-        Then
-            [ Withdrawn { Amount = 100m; Date = DateTime.MinValue } ]
-        ThenState
-            { State.initial with Balance = thresholdLimit }
-        When
-            ( Withdraw (1m, DateTime.MinValue, Some thresholdLimit) )
-        ThenError
-            ( ThresholdExceeded (-501m, thresholdLimit) |> WithdrawingError )
-    }
-
-[<Fact>]
-let ``calculate the balance of withdrawals and deposits`` () =
-    spec {
-        Given
-            [ Deposited { Amount =  50m; Date = DateTime.MinValue }
-              Withdrawn { Amount =  10m; Date = DateTime.MinValue }
-              Withdrawn { Amount =   5m; Date = DateTime.MinValue }
-              Deposited { Amount = 100m; Date = DateTime.MinValue } ]
-        ThenState
-            { State.initial with Balance = 135m }
-    }
+    Assert.True false
 
 [<Fact>]
 let ``close the account`` () =
-    spec {
-        When
-            ( Close DateTime.MinValue )
-        Then
-            [ Closed DateTime.MinValue ]
-        ThenState
-            { State.initial with IsClosed = true }
-    }
+    Assert.True false
 
 [<Fact>]
 let ``close the account and withdraw the remaining amount`` () =
-    spec {
-        GivenState
-            { State.initial with Balance = 100m }
-        When
-            ( Close DateTime.MinValue )
-        Then
-            [ Withdrawn { Amount = 100m; Date = DateTime.MinValue }
-              Closed DateTime.MinValue ]
-        ThenState
-            { State.initial with IsClosed = true }
-    }
+    Assert.True false
+
+(*
+    Now switch the DSL from DeciderSpecList to DeciderSpecResult (also for state tests)
+    Then refactor the decide function to return a Result<Event list, Error>
+*)
+
+[<Fact>]
+let ``when withdrawing, the threshold limit should not be exceeded`` () =
+    Assert.True false
 
 [<Fact>]
 let ``negative balance cannot be closed`` () =
-    spec {
-        GivenState
-            { State.initial with Balance = -50m }
-        When
-            ( Close DateTime.MinValue )
-        ThenError
-            ( BalanceIsNegative -50m |> ClosingError )
-    }
+    Assert.True false
 
 [<Fact>]
 let ``cannot deposit or withdraw if the account is already closed`` () =
-    spec {
-        GivenState
-            { State.initial with IsClosed = true }
-        When
-            ( Deposit (10m, DateTime.MinValue) )
-        ThenError
-            AlreadyClosed
-        When
-            ( Withdraw (10m, DateTime.MinValue, None) )
-        ThenError
-            AlreadyClosed
-    }
+    Assert.True false
+
+[<Fact>]
+let ``cannot close an already closed account`` () =
+    Assert.True false

@@ -1,4 +1,4 @@
-namespace EsBankAccount.Tests.Domain
+﻿namespace EsBankAccount.Tests.Domain
 
 open Swensen.Unquote
 
@@ -6,10 +6,10 @@ type DeciderSpecState<'State, 'Outcome> =
     { State: 'State
       Outcome: 'Outcome }
 
-type DeciderSpec<'State, 'Command, 'Event>
-    (initialState: 'State,
-    decide: 'Command -> 'State -> 'Event list,
-    evolve: 'State -> 'Event -> 'State)
+type DeciderSpecList<'State, 'Command, 'Event>
+    (initialState: 'State
+    , evolve: 'State -> 'Event -> 'State
+    , decide: 'Command -> 'State -> 'Event list)
     =
 
     member _.Yield _ : DeciderSpecState<'State, 'Event list> =
@@ -20,10 +20,6 @@ type DeciderSpec<'State, 'Command, 'Event>
     member _.Given (spec, events) =
         { spec with State = List.fold evolve spec.State events }
 
-    [<CustomOperation "GivenState">]
-    member _.GivenState (spec, state) =
-        { spec with State = state }
-
     [<CustomOperation "When">]
     member _.When (spec, command) =
         let events = decide command spec.State
@@ -32,21 +28,15 @@ type DeciderSpec<'State, 'Command, 'Event>
             Outcome = events }
 
     [<CustomOperation "Then">]
-    member _.ThenEvents (spec, expected) =
+    member _.Then (spec, expected) =
         let events = spec.Outcome
         test <@ events = expected @>
         spec
 
-    [<CustomOperation "ThenState">]
-    member _.ThenState (spec, expected) =
-        let state = spec.State
-        test <@ state = expected @>
-        spec
-
 type DeciderSpecResult<'State, 'Command, 'Event, 'Error>
-    (initialState: 'State,
-    decide: 'Command -> 'State -> Result<'Event list, 'Error>,
-    evolve: 'State -> 'Event -> 'State)
+    (initialState: 'State
+    , evolve: 'State -> 'Event -> 'State
+    , decide: 'Command -> 'State -> Result<'Event list, 'Error>)
     =
 
     member _.Yield _ : DeciderSpecState<'State, Result<'Event list, 'Error>> =
@@ -57,10 +47,6 @@ type DeciderSpecResult<'State, 'Command, 'Event, 'Error>
     member _.Given (spec, events) =
         { spec with State = List.fold evolve spec.State events }
 
-    [<CustomOperation "GivenState">]
-    member _.GivenState (spec, state) =
-        { spec with State = state }
-
     [<CustomOperation "When">]
     member _.When (spec, command) =
         let result = decide command spec.State
@@ -68,7 +54,7 @@ type DeciderSpecResult<'State, 'Command, 'Event, 'Error>
             State =
                 match result with
                 | Ok events -> List.fold evolve spec.State events
-                | Error _ -> spec.State
+                | Error _   -> spec.State
             Outcome = result }
 
     [<CustomOperation "Then">]
@@ -81,10 +67,4 @@ type DeciderSpecResult<'State, 'Command, 'Event, 'Error>
     member _.ThenError (spec, expected) =
         let result = spec.Outcome
         test <@ result = Error expected @>
-        spec
-
-    [<CustomOperation "ThenState">]
-    member _.ThenState (spec, expected) =
-        let state = spec.State
-        test <@ state = expected @>
         spec

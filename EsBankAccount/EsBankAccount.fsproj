@@ -4,18 +4,6 @@
     <Compile Include="Domain\ResultBuilder.fs" />
     <Compile Include="Domain\BankAccount.fs" />
 
-    <Compile Include="App\CommandHandler.fs" />
-    <Compile Include="App\BankAccountProjector.fs" />
-
-    <Compile Include="Infra\EventStore.fs" />
-    <Compile Include="Infra\Database.fs" />
-    <Compile Include="Infra\MessageQueue.fs" />
-
-    <Compile Include="Startup\BankAccountClient.fs" />
-
-    <Compile Include="View\BulmaHelpers.fs" />
-    <Compile Include="View\Main.fs" />
-
     <Compile Include="Program.fs" />
   </ItemGroup>
 

@@ -6,14 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Domain\DeciderSpecs.fs" />
+    <Compile Include="Dsl\DeciderSpecs.fs" />
+    <Compile Include="Dsl\DeciderStateSpecs.fs" />
     <Compile Include="Domain\BankAccountTests.fs" />
+    <Compile Include="Domain\BankAccountTests.state.fs" />
 
-    <Compile Include="App\CommandHandlerTests.fs" />
-
-    <Compile Include="Startup\BankAccountClientTests.fs" />
-
-  <Compile Include="Program.fs" />
+    <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>
