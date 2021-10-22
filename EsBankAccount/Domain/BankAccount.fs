@@ -13,10 +13,14 @@ type Transaction =
     { Amount: Money
       Date: DateTime }
 
+type ClosedData =
+    { ClosedOn: DateTime }
+
 type Event =
     | Deposited of Transaction
     | Withdrawn of Transaction
-    | Closed    of DateTime
+    | Closed    of ClosedData
+    interface TypeShape.UnionContract.IUnionContract
 
 type State =
     { Balance: Amount
@@ -53,7 +57,7 @@ let private withdraw amount date =
 let private close date state =
     [ if state.Balance > 0m then
         Withdrawn { Amount = state.Balance; Date = date }
-      Closed date ]
+      Closed { ClosedOn = date } ]
 
 //===== 4. validation
 

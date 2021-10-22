@@ -1,15 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <ItemGroup>
     <Compile Include="Domain\ResultBuilder.fs" />
+    <Compile Include="Domain\DeciderHelpers.fs" />
     <Compile Include="Domain\BankAccount.fs" />
 
-    <Compile Include="App\CommandHandler.fs" />
     <Compile Include="App\BankAccountProjector.fs" />
 
-    <Compile Include="Infra\EventStore.fs" />
     <Compile Include="Infra\Database.fs" />
-    <Compile Include="Infra\MessageQueue.fs" />
 
     <Compile Include="Startup\BankAccountClient.fs" />
 
@@ -22,8 +20,9 @@
   <ItemGroup>
     <PackageReference Include="Bolero" Version="0.17.25" />
     <PackageReference Include="Bolero.Build" Version="0.17.25" />
-    <PackageReference Include="FSharp.SystemTextJson" Version="0.17.4" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.9" />
+    <PackageReference Include="Equinox.MemoryStore" Version="3.0.4" />
+    <PackageReference Include="FsCodec.SystemTextJson" Version="2.2.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.11" />
   </ItemGroup>
 
 </Project>

@@ -21,10 +21,7 @@ module BankAccountProjector =
     type Dependencies =
         { AddTransaction: TransactionModel -> Async<unit> }
 
-    let project
-        (deps: Dependencies)
-        accountId event (state: BankAccount.State)
-        =
+    let project deps accountId event (state: BankAccount.State) =
         async {
             match event with
             | BankAccount.Deposited transaction ->

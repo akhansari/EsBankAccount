@@ -11,8 +11,6 @@
     <Compile Include="Domain\BankAccountTests.fs" />
     <Compile Include="Domain\BankAccountTests.state.fs" />
 
-    <Compile Include="App\CommandHandlerTests.fs" />
-
     <Compile Include="Startup\BankAccountClientTests.fs" />
 
   <Compile Include="Program.fs" />

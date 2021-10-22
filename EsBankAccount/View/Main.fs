@@ -20,7 +20,7 @@ type Model =
       AccountId: string option
       Transactions: TransactionModel list
       TransactionAmount: decimal
-      Events: (EventStore.StreamKey * string) list }
+      Events: (string * string) list }
 
 [<RequireQualifiedAccess>]
 module Model =
@@ -32,7 +32,7 @@ module Model =
           Events = List.empty }
 
 type Message =
-    | AddEvent of EventStore.StreamKey * string
+    | AddEvent of string * string
 
     | SetAccountId of string
     | OpenAccount
@@ -177,7 +177,7 @@ let accountView model dispatch =
 let eventsView model =
     forEach model.Events <| fun (key, event) ->
         p [] [
-            text $"{key.Id} :"
+            text $"{key} :"
             pre [] [ text event ]
         ]
 
