@@ -20,7 +20,7 @@ type Model =
       AccountId: string option
       Transactions: TransactionModel list
       TransactionAmount: decimal
-      Events: (string * string) list }
+      Events: (FsCodec.StreamName * string) list }
 
 [<RequireQualifiedAccess>]
 module Model =
@@ -32,7 +32,7 @@ module Model =
           Events = List.empty }
 
 type Message =
-    | AddEvent of string * string
+    | AddEvent of FsCodec.StreamName * string
 
     | SetAccountId of string
     | OpenAccount

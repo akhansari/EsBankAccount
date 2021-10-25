@@ -70,4 +70,4 @@ let listenToEvents callback =
         let sb = StringBuilder ()
         for event in events do
             sb.AppendLine(event.EventType).AppendLine(string event.Data) |> ignore
-        callback (string streamName, string sb)
+        callback (streamName, string sb)
