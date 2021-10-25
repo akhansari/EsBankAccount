@@ -47,7 +47,7 @@ let ``close the account`` () =
         When
             ( Close DateTime.MinValue )
         Then
-            [ Closed { ClosedOn = DateTime.MinValue } ]
+            [ Closed {| ClosedOn = DateTime.MinValue |} ]
     }
 
 [<Fact>]
@@ -59,7 +59,7 @@ let ``close the account and withdraw the remaining amount`` () =
             ( Close DateTime.MinValue )
         Then
             [ Withdrawn { Amount = 100m; Date = DateTime.MinValue }
-              Closed { ClosedOn = DateTime.MinValue } ]
+              Closed {| ClosedOn = DateTime.MinValue |} ]
     }
 
 [<Fact>]
@@ -77,7 +77,7 @@ let ``negative balance cannot be closed`` () =
 let ``cannot deposit or withdraw if the account is already closed`` () =
     spec {
         Given
-            [ Closed { ClosedOn = DateTime.MinValue } ]
+            [ Closed {| ClosedOn = DateTime.MinValue |} ]
         When
             ( Deposit (10m, DateTime.MinValue) )
         ThenError
