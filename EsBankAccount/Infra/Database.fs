@@ -2,15 +2,24 @@
 /// A fake relational database
 module EsBankAccount.Infra.Database
 
+open System
 open EsBankAccount.App
 
 type Db =
     { Accounts: ResizeArray<AccountModel>
       Transactions: ResizeArray<TransactionModel> }
+    interface IDisposable with
+        member _.Dispose () = ()
 
-let createConnection () =
+let private connection =
+    lazy
     { Accounts = ResizeArray ()
       Transactions = ResizeArray () }
+
+let createReadConnection () =
+    connection.Value
+let createWriteConnection () =
+    connection.Value
 
 let addAccount conn account =
     conn.Accounts.Add account

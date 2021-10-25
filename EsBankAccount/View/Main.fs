@@ -20,7 +20,7 @@ type Model =
       AccountId: string option
       Transactions: TransactionModel list
       TransactionAmount: decimal
-      Events: (EventStore.StreamKey * string) list }
+      Events: (FsCodec.StreamName * string) list }
 
 [<RequireQualifiedAccess>]
 module Model =
@@ -32,7 +32,7 @@ module Model =
           Events = List.empty }
 
 type Message =
-    | AddEvent of EventStore.StreamKey * string
+    | AddEvent of FsCodec.StreamName * string
 
     | SetAccountId of string
     | OpenAccount
@@ -66,7 +66,7 @@ let update message model : Model * Cmd<Message> =
         model,
         match model.State with
         | AccountOpened accountId ->
-            Cmd.OfAsync.perform BankAccountClient.transactionsOf accountId GotAccountInfo
+            Cmd.OfAsync.perform ReadModelClient.transactionsOf accountId GotAccountInfo
         | _ ->
             Cmd.none
     | GotAccountInfo transactions ->
@@ -177,7 +177,7 @@ let accountView model dispatch =
 let eventsView model =
     forEach model.Events <| fun (key, event) ->
         p [] [
-            text $"{key.Id} :"
+            text $"{key} :"
             pre [] [ text event ]
         ]
 

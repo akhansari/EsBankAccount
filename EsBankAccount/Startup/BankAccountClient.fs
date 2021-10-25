@@ -2,61 +2,72 @@
 module EsBankAccount.Startup.BankAccountClient
 
 open System
+open System.Text
 
 open EsBankAccount.Domain
 open EsBankAccount.App
 open EsBankAccount.Infra
 
-let handleCommand conn accountId command =
-    async {
-        let key : EventStore.StreamKey =
-            { Name = BankAccount.DeciderName
-              Id = accountId }
-        return!
-            CommandHandler.tryHandle
-                (EventStore.read   conn key)
-                (EventStore.append conn key)
-                BankAccount.evolve
-                BankAccount.decide
-                BankAccount.State.initial
-                command
-    }
 
-let handleOutcome publishEvent accountId = function
-    | Ok data ->
-        for (event, state) in data do
-            publishEvent (accountId, event, state)
-    | Error error ->
-        printfn $"Error: {error}"
+module private EquinoxClient =
+    open System.Text.Json
+    open System.Text.Json.Serialization
+    open Equinox
+    open FsCodec
+    open Serilog
 
-// connections are usually disposable
-// but since this is an isolated demo, ok to be static
-let connections = ()
-let private esConn = EventStore.createConnection ()
-let private rmConn = Database.createConnection ()
-let private projector =
-    BankAccountProjector.project
-        { AddTransaction = Database.addTransaction rmConn }
-    |> MessageQueue.createEventHandler
+    let logger = LoggerConfiguration().CreateLogger ()
+    let store = MemoryStore.VolatileStore ()
+    let codec =
+        let jso = JsonSerializerOptions ()
+        JsonFSharpConverter JsonUnionEncoding.FSharpLuLike |> jso.Converters.Add
+        jso.WriteIndented <- true
+        SystemTextJson.Codec.Create jso
+    let cat = MemoryStore.MemoryStoreCategory (store, codec, Seq.fold BankAccount.evolve, BankAccount.State.initial)
+    let streamName accountId = StreamName.create BankAccount.DeciderName accountId
+    let resolve accountId = Decider (logger, cat.Resolve (streamName accountId), maxAttempts = 1)
 
-let handle accountId command =
-    async {
-        let! outcome = handleCommand esConn accountId command
-        return handleOutcome projector.Post accountId outcome
-    }
+
+module private Client =
+
+    let decide command state =
+        async {
+            match BankAccount.decide command state with
+            | Ok events ->
+                let data = Decider.evolveZip BankAccount.evolve state events
+                return data, events
+            | Error _ ->
+                return [], [] // todo: error handling
+        }
+
+    let handle accountId command =
+        async {
+            // handle command
+            let! eventAndStates =
+                decide command
+                |> (EquinoxClient.resolve accountId).TransactAsync
+            // handle events
+            use conn = Database.createWriteConnection ()
+            do! // todo: idempotency & retry strategy
+                BankAccountProjector.handleEvents
+                    { AddTransaction = Database.addTransaction conn }
+                    accountId eventAndStates
+        }
+
 
 let deposit accountId amount =
-    (amount, DateTime.Now)
-    |> BankAccount.Deposit
-    |> handle accountId
+    BankAccount.Deposit (amount, DateTime.Now)
+    |> Client.handle accountId
 
 let withdraw accountId amount =
-    (amount, DateTime.Now, None)
-    |> BankAccount.Withdraw
-    |> handle accountId
+    BankAccount.Withdraw (amount, DateTime.Now, None)
+    |> Client.handle accountId
 
-let transactionsOf =
-    Database.transactionsOf rmConn
+// todo: closing
 
 let listenToEvents callback =
-    esConn.Publisher.Subscribe callback
+    EquinoxClient.store.Committed.Add <| fun (streamName, events) ->
+        let sb = StringBuilder ()
+        for event in events do
+            sb.AppendLine(event.EventType).AppendLine(string event.Data) |> ignore
+        callback (streamName, string sb)

@@ -4,19 +4,17 @@ open System
 open Swensen.Unquote
 open Xunit
 
-open EsBankAccount.Domain
-open EsBankAccount.Infra
 open EsBankAccount.Startup
+open EsBankAccount.Startup.BankAccountClient
 
-let fakeAccountId = string Guid.Empty
+let fakeAccountId () = string Guid.Empty
 
 [<Fact>]
-let ``Command handler should return Ok`` () =
+let ``Should deposit and then withdraw`` () =
     async {
-        let esConn = EventStore.createConnection ()
-        let! res =
-            BankAccountClient.handleCommand esConn fakeAccountId
-                (BankAccount.Deposit (10m, DateTime.MinValue))
-        match res with Ok [ (BankAccount.Deposited _ , _) ] -> true | _ -> false
-        =! true
+        let accountId = fakeAccountId ()
+        do! deposit accountId 10m
+        do! withdraw accountId 5m
+        let! transac = ReadModelClient.transactionsOf accountId
+        transac.Length =! 2
     }
