@@ -41,3 +41,10 @@ module BankAccountProjector =
             | BankAccount.Closed _ ->
                 ()
         }
+
+    let handleEvents deps accountId
+        (eventAndStates: (BankAccount.Event * BankAccount.State) list) =
+        async {
+            for (event, state) in eventAndStates do
+                do! project deps accountId event state
+        }

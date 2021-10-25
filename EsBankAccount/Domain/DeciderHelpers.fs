@@ -1,8 +1,8 @@
 ﻿module EsBankAccount.Domain.Decider
 
-let rec evolveAndZip evolve state events =
+let rec evolveZip evolve state events =
     match events with
     | [] -> []
     | head :: tail ->
         let newState = evolve state head
-        (head, newState) :: evolveAndZip evolve newState tail
+        (head, newState) :: evolveZip evolve newState tail

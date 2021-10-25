@@ -8,7 +8,8 @@ open EsBankAccount.Domain
 open EsBankAccount.App
 open EsBankAccount.Infra
 
-module private Client =
+
+module private EquinoxClient =
     open System.Text.Json
     open System.Text.Json.Serialization
     open Equinox
@@ -26,42 +27,46 @@ module private Client =
     let streamName accountId = StreamName.create BankAccount.DeciderName accountId
     let resolve accountId = Decider (logger, cat.Resolve (streamName accountId), maxAttempts = 1)
 
-    let readModelConn = Database.createConnection ()
-    let project =
-        BankAccountProjector.project
-            { AddTransaction = Database.addTransaction readModelConn }
 
-    let decide accountId state command =
+module private Client =
+
+    let decide state command =
         async {
             match BankAccount.decide command state with
             | Ok events ->
-                let data = Decider.evolveAndZip BankAccount.evolve state events
-                for (event, state) in data do
-                    do! project accountId event state
-                return (), events
+                let data = Decider.evolveZip BankAccount.evolve state events
+                return data, events
             | Error _ ->
-                return (), List.empty
+                return [], [] // todo: error handling
         }
 
+    let handle accountId command =
+        async {
+            // handle command
+            let! eventAndStates =
+                fun state -> decide state command
+                |> (EquinoxClient.resolve accountId).TransactAsync
+            // handle events
+            use conn = Database.createWriteConnection ()
+            do! // todo: idempotency & retry strategy
+                BankAccountProjector.handleEvents
+                    { AddTransaction = Database.addTransaction conn }
+                    accountId eventAndStates
+        }
+
+
 let deposit accountId amount =
-    fun state ->
-        (amount, DateTime.Now)
-        |> BankAccount.Deposit
-        |> Client.decide accountId state
-    |> (Client.resolve accountId).TransactAsync
+    BankAccount.Deposit (amount, DateTime.Now)
+    |> Client.handle accountId
 
 let withdraw accountId amount =
-    fun state ->
-        (amount, DateTime.Now, None)
-        |> BankAccount.Withdraw
-        |> Client.decide accountId state
-    |> (Client.resolve accountId).TransactAsync
+    BankAccount.Withdraw (amount, DateTime.Now, None)
+    |> Client.handle accountId
 
-let transactionsOf =
-    Database.transactionsOf Client.readModelConn
+// todo: closing
 
 let listenToEvents callback =
-    Client.store.Committed.Add <| fun (streamName, events) ->
+    EquinoxClient.store.Committed.Add <| fun (streamName, events) ->
         let sb = StringBuilder ()
         for event in events do
             sb.AppendLine(event.EventType).AppendLine(string event.Data) |> ignore

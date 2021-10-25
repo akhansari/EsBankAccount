@@ -9,6 +9,7 @@
 
     <Compile Include="Infra\Database.fs" />
 
+    <Compile Include="Startup\ReadModelClient.fs" />
     <Compile Include="Startup\BankAccountClient.fs" />
 
     <Compile Include="View\BulmaHelpers.fs" />

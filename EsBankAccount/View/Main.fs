@@ -66,7 +66,7 @@ let update message model : Model * Cmd<Message> =
         model,
         match model.State with
         | AccountOpened accountId ->
-            Cmd.OfAsync.perform BankAccountClient.transactionsOf accountId GotAccountInfo
+            Cmd.OfAsync.perform ReadModelClient.transactionsOf accountId GotAccountInfo
         | _ ->
             Cmd.none
     | GotAccountInfo transactions ->
