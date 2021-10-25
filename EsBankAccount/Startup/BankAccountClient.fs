@@ -30,7 +30,7 @@ module private EquinoxClient =
 
 module private Client =
 
-    let decide state command =
+    let decide command state =
         async {
             match BankAccount.decide command state with
             | Ok events ->
@@ -44,7 +44,7 @@ module private Client =
         async {
             // handle command
             let! eventAndStates =
-                fun state -> decide state command
+                decide command
                 |> (EquinoxClient.resolve accountId).TransactAsync
             // handle events
             use conn = Database.createWriteConnection ()
