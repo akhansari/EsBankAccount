@@ -6,7 +6,6 @@ open Elmish
 open Bolero
 open Bolero.Html
 
-open EsBankAccount.App
 open EsBankAccount.Infra
 open EsBankAccount.Startup
 
@@ -17,6 +16,7 @@ type State =
 
 type Model =
     { State: State
+      Accounts: ReadModelDb.AccountsModel
       AccountId: string option
       Transactions: ReadModelDb.TransactionModel list
       TransactionAmount: decimal
@@ -26,6 +26,7 @@ type Model =
 module Model =
     let initial =
         { State = Initial
+          Accounts = List.empty
           AccountId = None
           Transactions = List.empty
           TransactionAmount = 1m
@@ -38,7 +39,9 @@ type Message =
     | OpenAccount
     | GetAccountInfo
     | GotAccountInfo of ReadModelDb.TransactionModel list
+
     | SwitchAccount
+    | SetAccounts of ReadModelDb.AccountsModel
 
     | SetTransactionAmount of decimal
     | Deposit
@@ -72,8 +75,12 @@ let update message model : Model * Cmd<Message> =
     | GotAccountInfo transactions ->
         { model with Transactions = List.rev transactions },
         Cmd.none
+
     | SwitchAccount ->
         { Model.initial with Events = model.Events },
+        Cmd.OfAsync.perform ReadModelClient.getAccounts () SetAccounts
+    | SetAccounts accounts ->
+        { model with Accounts = accounts },
         Cmd.none
 
     | SetTransactionAmount amount ->
@@ -114,9 +121,37 @@ let initialView model dispatch =
             [ on.click (fun _ -> dispatch OpenAccount)
               css "button is-info" ]
             [ text "Open" ]
+    let accounts =
+        btable [] [
+            thead [] [ tr [] [
+                th [] [ text "Account" ]
+                th [] [ text "State" ]
+            ] ]
+            tbody [] [
+            forEach model.Accounts <| fun (accountId, accountState) -> tr [] [
+                td [] [ text accountId ]
+                td [] [
+                    cond accountState <| function
+                    | ReadModelDb.Opened ->
+                        button
+                            [ on.click (fun _ ->
+                                SetAccountId accountId |> dispatch
+                                OpenAccount |> dispatch)
+                              css "button is-small is-rounded" ]
+                            [ text "open" ]
+                    | ReadModelDb.Closed ->
+                         button
+                            [ attr.disabled 0
+                              css "button is-small is-rounded" ]
+                            [ text "closed" ] ]
+            ] ]
+        ]
     concat [
         div [ css "is-size-4 block" ] [ text "Account" ]
         bfieldIcoBtn "user" inputNode buttonNode
+        cond model.Accounts.IsEmpty <| function
+        | true  -> empty
+        | false -> accounts
     ]
 
 let accountView model dispatch =
