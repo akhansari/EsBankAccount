@@ -18,7 +18,7 @@ type State =
 type Model =
     { State: State
       AccountId: string option
-      Transactions: TransactionModel list
+      Transactions: ReadModelDb.TransactionModel list
       TransactionAmount: decimal
       Events: (FsCodec.StreamName * string) list }
 
@@ -37,7 +37,7 @@ type Message =
     | SetAccountId of string
     | OpenAccount
     | GetAccountInfo
-    | GotAccountInfo of TransactionModel list
+    | GotAccountInfo of ReadModelDb.TransactionModel list
     | SwitchAccount
 
     | SetTransactionAmount of decimal

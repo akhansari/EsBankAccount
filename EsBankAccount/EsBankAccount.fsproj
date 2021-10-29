@@ -7,7 +7,7 @@
 
     <Compile Include="App\BankAccountProjector.fs" />
 
-    <Compile Include="Infra\Database.fs" />
+    <Compile Include="Infra\ReadModelDb.fs" />
 
     <Compile Include="Startup\ReadModelClient.fs" />
     <Compile Include="Startup\BankAccountClient.fs" />

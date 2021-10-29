@@ -29,28 +29,28 @@ module private EquinoxClient =
 
 
 module private Client =
+    open BankAccountProjector
+    open ReadModelClient
 
     let decide command state =
-        async {
-            match BankAccount.decide command state with
-            | Ok events ->
-                let data = Decider.evolveZip BankAccount.evolve state events
-                return data, events
-            | Error _ ->
-                return [], [] // todo: error handling
-        }
+        match BankAccount.decide command state with
+        | Ok events ->
+            let data = Decider.evolveZip BankAccount.evolve state events
+            data, events
+        | Error _ ->
+            [], [] // todo: error handling
 
     let handle accountId command =
         async {
             // handle command
             let! eventAndStates =
                 decide command
-                |> (EquinoxClient.resolve accountId).TransactAsync
+                |> (EquinoxClient.resolve accountId).Transact
             // handle events
-            use conn = Database.createWriteConnection ()
+            use conn = ReadModelDb.createWriteConnection ()
             do! // todo: idempotency & retry strategy
-                BankAccountProjector.handleEvents
-                    { AddTransaction = Database.addTransaction conn }
+                handleEvents
+                    { AddTransaction = addTransaction conn }
                     accountId eventAndStates
         }
 

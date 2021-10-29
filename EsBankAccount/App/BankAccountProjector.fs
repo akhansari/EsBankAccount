@@ -6,11 +6,11 @@ open EsBankAccount.Domain
 
 type AccountId = string
 
-type AccountModel =
+type AccountDto =
     { Id: AccountId
       State: string }
 
-type TransactionModel =
+type TransactionDto =
     { AccountId: AccountId
       Date: DateTime
       Amount: decimal
@@ -18,22 +18,21 @@ type TransactionModel =
 
 module BankAccountProjector =
 
+    [<NoComparison; NoEquality>]
     type Dependencies =
-        { AddTransaction: TransactionModel -> Async<unit> }
+        { AddTransaction: TransactionDto -> Async<unit> }
 
     let project deps accountId event (state: BankAccount.State) =
         async {
             match event with
             | BankAccount.Deposited transaction ->
-                do!
-                    { AccountId = accountId
+                do! { AccountId = accountId
                       Date = transaction.Date
                       Amount = transaction.Amount
                       Balance = state.Balance }
                     |> deps.AddTransaction
             | BankAccount.Withdrawn transaction ->
-                do!
-                    { AccountId = accountId
+                do! { AccountId = accountId
                       Date = transaction.Date
                       Amount = -transaction.Amount
                       Balance = state.Balance }

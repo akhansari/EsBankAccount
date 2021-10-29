@@ -1,19 +1,28 @@
 ﻿[<RequireQualifiedAccess>]
 /// A fake relational database
-module EsBankAccount.Infra.Database
+module EsBankAccount.Infra.ReadModelDb
 
 open System
-open EsBankAccount.App
+open System.Collections.Generic
 
+type AcountStateModel = Open | Closed
+
+type TransactionModel =
+    { AccountId: string
+      Date: DateTime
+      Amount: decimal
+      Balance: decimal }
+
+[<NoComparison>]
 type Db =
-    { Accounts: ResizeArray<AccountModel>
+    { Accounts: IDictionary<string, AcountStateModel>
       Transactions: ResizeArray<TransactionModel> }
     interface IDisposable with
         member _.Dispose () = ()
 
 let private connection =
     lazy
-    { Accounts = ResizeArray ()
+    { Accounts = Dictionary ()
       Transactions = ResizeArray () }
 
 let createReadConnection () =

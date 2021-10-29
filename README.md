@@ -2,6 +2,17 @@
 
 __Work in progress__
 
+## Setup
+
+- Install [.Net SDK 5.0](https://dotnet.microsoft.com/download/dotnet/5.0) (Linux / Windows / macOS)
+- To TDD: `dotnet watch test -p EsBankAccount.sln`
+- To watch: `dotnet watch run -p EsBankAccount/EsBankAccount.fsproj`
+
+Editors:
+- [Vim](https://github.com/ionide/Ionide-vim)
+- [VSCode](https://marketplace.visualstudio.com/items?itemName=Ionide.Ionide-fsharp)
+- VisualStudio [Windows](https://visualstudio.microsoft.com/vs/community/) / [macOS](https://visualstudio.microsoft.com/vs/mac/)
+
 ## Kata
 
 You can clone the `kata-start` branch and start practicing.\
@@ -66,7 +77,7 @@ So it will be easier to split it into separate files if it starts to grow.
 Usually there is at least two kind of Deciders:
 1. System `-> 'Event list`\
    Silent, if nothing has happened then it will return an empty list. No need for validation.
-1. Frontal `-> Result<'Event list, 'Error>`\
+2. Frontal `-> Result<'Event list, 'Error>`\
    When validation is required. For instance called from an API.\
    Could also be `-> Validation<'Event list, 'Error list>`.
 
