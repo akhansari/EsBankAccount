@@ -10,104 +10,116 @@ open EsBankAccount.Infra
 open EsBankAccount.Startup
 
 
-type State =
-    | Initial
-    | AccountOpened of string
+type HomeModel =
+    { Accounts: ReadModelDb.AccountsModel
+      AccountId: string option }
+module HomeModel =
+    let empty =
+        { Accounts = List.empty
+          AccountId = None }
+
+type AccountModel =
+    { AccountId: string
+      Transactions: ReadModelDb.TransactionModel list
+      TransactionAmount: decimal option }
+module AccountModel =
+    let empty id =
+        { AccountId = id
+          Transactions = List.empty
+          TransactionAmount = None }
 
 type Model =
     { State: State
-      Accounts: ReadModelDb.AccountsModel
-      AccountId: string option
-      Transactions: ReadModelDb.TransactionModel list
-      TransactionAmount: decimal
       Events: (FsCodec.StreamName * string) list }
-
-[<RequireQualifiedAccess>]
+and State =
+    | HomeView of HomeModel
+    | AccountView of AccountModel
 module Model =
     let initial =
-        { State = Initial
-          Accounts = List.empty
-          AccountId = None
-          Transactions = List.empty
-          TransactionAmount = 1m
+        { State = HomeView HomeModel.empty
           Events = List.empty }
 
 type Message =
-    | AddEvent of FsCodec.StreamName * string
-
+    // home
+    | SetAccounts of ReadModelDb.AccountsModel
     | SetAccountId of string
     | OpenAccount
+    // account
     | GetAccountInfo
     | GotAccountInfo of ReadModelDb.TransactionModel list
-
     | SwitchAccount
-    | SetAccounts of ReadModelDb.AccountsModel
-
     | SetTransactionAmount of decimal
     | Deposit
     | Withdraw
+    // common
+    | AddEvent of FsCodec.StreamName * string
+
+let updateHome model stateModel = { model with State = HomeView stateModel }
+let updateAccount model stateModel = { model with State = AccountView stateModel }
+let doNothing model = model, Cmd.none
 
 let update message model : Model * Cmd<Message> =
-    match message with
+    match message, model.State with
 
-    | AddEvent (key, event) ->
+    | SetAccounts accounts, HomeView homeModel ->
+        { homeModel with Accounts = accounts } |> updateHome model,
+        Cmd.none
+    | SetAccountId accountId, HomeView homeModel ->
+        { homeModel with AccountId = Some accountId } |> updateHome model,
+        Cmd.none
+    | OpenAccount, HomeView homeModel ->
+        match homeModel.AccountId with
+        | Some accountId when String.IsNullOrWhiteSpace accountId |> not ->
+            { model with State = AccountModel.empty accountId |> AccountView },
+            Cmd.ofMsg GetAccountInfo
+        | _ ->
+            doNothing model
+
+    | GetAccountInfo, AccountView accountModel ->
+        model,
+        Cmd.OfAsync.perform ReadModelClient.transactionsOf accountModel.AccountId GotAccountInfo
+    | GotAccountInfo transactions, AccountView accountModel ->
+        { accountModel with Transactions = transactions } |> updateAccount model,
+        Cmd.none
+
+    | SwitchAccount, AccountView _ ->
+        { Model.initial with Events = model.Events },
+        Cmd.OfAsync.perform ReadModelClient.getAccounts () SetAccounts
+
+    | SetTransactionAmount amount, AccountView accountModel ->
+        { accountModel with TransactionAmount = Some amount } |> updateAccount model,
+        Cmd.none
+    | Deposit, AccountView accountModel ->
+        model,
+        match accountModel.TransactionAmount with
+        | Some amount when amount > 0m ->
+            Cmd.OfAsync.perform
+                ((<||) BankAccountClient.deposit)
+                (accountModel.AccountId, amount)
+                (fun () -> GetAccountInfo)
+        | _ ->
+            Cmd.none
+    | Withdraw, AccountView accountModel ->
+        model,
+        match accountModel.TransactionAmount with
+        | Some amount when amount > 0m ->
+            Cmd.OfAsync.perform
+                ((<||) BankAccountClient.withdraw)
+                (accountModel.AccountId, amount)
+                (fun () -> GetAccountInfo)
+        | _ ->
+            Cmd.none
+
+    | AddEvent (key, event), _ ->
         { model with Events = (key, event) :: model.Events },
         Cmd.none
 
-    | SetAccountId accountId ->
-        { model with AccountId = Some accountId },
-        Cmd.none
-    | OpenAccount ->
-        match model.AccountId with
-        | Some accountId when String.IsNullOrWhiteSpace accountId |> not ->
-            { model with State = AccountOpened accountId },
-            Cmd.ofMsg GetAccountInfo
-        | _ ->
-            { model with State = Initial },
-            Cmd.none
-    | GetAccountInfo ->
-        model,
-        match model.State with
-        | AccountOpened accountId ->
-            Cmd.OfAsync.perform ReadModelClient.transactionsOf accountId GotAccountInfo
-        | _ ->
-            Cmd.none
-    | GotAccountInfo transactions ->
-        { model with Transactions = List.rev transactions },
-        Cmd.none
+    | _ ->
+        $"{message.GetType().Name}, {model.State.GetType().Name}"
+        |> NotSupportedException |> raise
 
-    | SwitchAccount ->
-        { Model.initial with Events = model.Events },
-        Cmd.OfAsync.perform ReadModelClient.getAccounts () SetAccounts
-    | SetAccounts accounts ->
-        { model with Accounts = accounts },
-        Cmd.none
 
-    | SetTransactionAmount amount ->
-        { model with TransactionAmount = amount },
-        Cmd.none
-    | Deposit ->
-        model,
-        match model.State with
-        | AccountOpened accountId when model.TransactionAmount > 0m ->
-            Cmd.OfAsync.perform
-                ((<||) BankAccountClient.deposit)
-                (accountId, model.TransactionAmount)
-                (fun () -> GetAccountInfo)
-        | _ ->
-            Cmd.none
-    | Withdraw ->
-        model,
-        match model.State with
-        | AccountOpened accountId when model.TransactionAmount > 0m ->
-            Cmd.OfAsync.perform
-                ((<||) BankAccountClient.withdraw)
-                (accountId, model.TransactionAmount)
-                (fun () -> GetAccountInfo)
-        | _ ->
-            Cmd.none
-
-let initialView model dispatch =
+let initialView (model: HomeModel) dispatch =
     let inputNode =
         input [
             bind.input.string
@@ -154,11 +166,11 @@ let initialView model dispatch =
         | false -> accounts
     ]
 
-let accountView model dispatch =
+let accountView (model: AccountModel) dispatch =
     concat [
 
     div [ css "is-flex is-align-items-center block" ] [
-        div [ css "is-size-4" ] [ text model.AccountId.Value ]
+        div [ css "is-size-4" ] [ text model.AccountId ]
         button
             [ on.click (fun _ -> dispatch SwitchAccount)
               css "button is-small is-rounded ml-3" ]
@@ -172,7 +184,9 @@ let accountView model dispatch =
     div [ css "field is-grouped" ] [
         div [ css "control" ] [
             input
-                [ bind.input.decimal model.TransactionAmount (SetTransactionAmount >> dispatch)
+                [ bind.input.decimal
+                    (defaultArg model.TransactionAmount 0m)
+                    (SetTransactionAmount >> dispatch)
                   attr.``type`` "number"
                   attr.min 1
                   attr.placeholder "Amount"
@@ -220,8 +234,8 @@ let view model dispatch =
     bcolumns [] [
         bcolumn [] [
             cond model.State <| function
-            | Initial -> initialView model dispatch
-            | AccountOpened _ -> accountView model dispatch
+            | HomeView homeModel -> initialView homeModel dispatch
+            | AccountView accountModel -> accountView accountModel dispatch
         ]
         bcolumn [] [
             div [ css "is-size-4 block" ] [ text "Event Store" ]

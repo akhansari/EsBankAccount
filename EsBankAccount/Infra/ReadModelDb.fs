@@ -4,6 +4,7 @@ module EsBankAccount.Infra.ReadModelDb
 
 open System
 open System.Collections.Concurrent
+open System.Collections.Generic
 
 type AcountStateModel = Opened | Closed
 
@@ -15,7 +16,7 @@ type TransactionModel =
 [<NoComparison>]
 type AccountModel =
     { State: AcountStateModel
-      Transactions: ResizeArray<TransactionModel> }
+      Transactions: LinkedList<TransactionModel> }
 
 type AccountsModel = (string * AcountStateModel) list
 
@@ -39,9 +40,9 @@ let addTransaction conn accountId transaction =
         accountId,
         (fun _ ->
             { State = Opened
-              Transactions = ResizeArray [| transaction |] }),
+              Transactions = LinkedList [| transaction |] }),
         (fun _ account ->
-            account.Transactions.Add transaction
+            account.Transactions.AddFirst transaction |> ignore
             account)
     ) |> ignore
     async.Return ()
