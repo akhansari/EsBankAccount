@@ -32,26 +32,36 @@ module private Client =
     open BankAccountProjector
     open ReadModelClient
 
+    let errorMessage = function
+        | BankAccount.AlreadyClosed ->
+            "Account already closed"
+        | BankAccount.WithdrawingError (BankAccount.ThresholdExceeded _) ->
+            "Threshold exceeded, withdrawal denied"
+        | BankAccount.ClosingError (BankAccount.BalanceIsNegative _) ->
+            "Balance is negative, closing denied"
+
     let decide command state =
         match BankAccount.decide command state with
         | Ok events ->
             let data = Decider.evolveZip BankAccount.evolve state events
-            data, events
-        | Error _ ->
-            [], [] // todo: error handling
+            Ok data, events
+        | Error error ->
+            Error error, []
 
     let handle accountId command =
         async {
-            // handle command
-            let! eventAndStates =
-                decide command
-                |> (EquinoxClient.resolve accountId).Transact
-            // handle events
-            use conn = ReadModelDb.createWriteConnection ()
-            do! // todo: idempotency & retry strategy
-                handleEvents
-                    { AddTransaction = addTransaction conn }
-                    accountId eventAndStates
+            let decider = EquinoxClient.resolve accountId
+            match! decide command |> decider.Transact with
+            | Ok eventsAndStates ->
+                //todo: use propulsion
+                use conn = ReadModelDb.createWriteConnection ()
+                let deps = // inject infra dependencies into app
+                    { AddTransaction = mapTransaction >> ReadModelDb.addTransaction conn accountId
+                      CloseAccount = ReadModelDb.closeAccount conn accountId }
+                do! handleEvents deps eventsAndStates
+                return Ok ()
+            | Error error ->
+                return errorMessage error |> Error
         }
 
 
@@ -63,7 +73,9 @@ let withdraw accountId amount =
     BankAccount.Withdraw (amount, DateTime.Now, None)
     |> Client.handle accountId
 
-// todo: closing
+let close accountId =
+    BankAccount.Close DateTime.Now
+    |> Client.handle accountId
 
 let listenToEvents callback =
     EquinoxClient.store.Committed.Add <| fun (streamName, events) ->

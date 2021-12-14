@@ -3,17 +3,15 @@
 open EsBankAccount.App
 open EsBankAccount.Infra
 
-let addTransaction conn dto =
-    ReadModelDb.addTransaction conn
-        dto.AccountId
-        { Date = dto.Date
-          Amount = dto.Amount
-          Balance = dto.Balance }
+let mapTransaction dto : ReadModelDb.TransactionModel =
+    { Date = dto.Date
+      Amount = dto.Amount
+      Balance = dto.Balance }
 
-let transactionsOf accountId =
+let getAccount accountId =
     async {
         use conn = ReadModelDb.createReadConnection ()
-        return! ReadModelDb.transactionsOf conn accountId
+        return! ReadModelDb.getAccount conn accountId
     }
 
 let getAccounts () =

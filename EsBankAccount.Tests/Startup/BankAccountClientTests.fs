@@ -13,8 +13,8 @@ let fakeAccountId () = string Guid.Empty
 let ``Should deposit and then withdraw`` () =
     async {
         let accountId = fakeAccountId ()
-        do! deposit accountId 10m
-        do! withdraw accountId 5m
-        let! transac = ReadModelClient.transactionsOf accountId
-        transac.Length =! 2
+        do! deposit accountId 10m |> Async.Ignore
+        do! withdraw accountId 5m |> Async.Ignore
+        let! account = ReadModelClient.getAccount accountId
+        account.Transactions.Length =! 2
     }
