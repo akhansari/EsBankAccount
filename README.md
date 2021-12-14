@@ -5,7 +5,7 @@ __Work in progress__
 ## Setup
 
 - Install [.Net SDK 5.0](https://dotnet.microsoft.com/download/dotnet/5.0) (Linux / Windows / macOS)
-- To TDD: `dotnet watch test -p EsBankAccount.sln`
+- To [B|T]DD: `dotnet watch test -p EsBankAccount.sln`
 - To watch: `dotnet watch run -p EsBankAccount/EsBankAccount.fsproj`
 
 Editors:
