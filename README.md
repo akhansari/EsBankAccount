@@ -1,6 +1,26 @@
-# Bank account kata and functional Event Sourcing
+# Bank account kata and Functional Event Sourcing
 
-__Work in progress__
+F# template/POC about Functional Event Sourcing, Onion Architecture and WebAssembly.
+
+For any issue or suggestion, please open an issue or a pull request.\
+Or open a discussion for questions, ideas, etc.
+
+## Why?
+
+### F#
+Empowers everyone to write succinct, robust and performant code.\
+It allows in addition to write backend (taking advantage of .Net ecosystem) and also frontend (transpiled to JS or compiled to Wasm) applications.
+
+### Functional Event Sourcing
+Fully embrace immutability and expressions besides ES benefits.
+
+### Onion Architecture
+Leads to more maintainable applications since it emphasizes separation of concerns throughout the system.\
+It's even quite natural with F#, compositions and higher-order functions.
+
+### WebAssembly
+Allows with minimal effort to create powerful UIs and back office apps.\
+For this demo the view is in the same project to allow it to be hosted on GitHub. But in production, it's often in a separate project and lifecycle.
 
 ## Setup
 
@@ -8,10 +28,7 @@ __Work in progress__
 - To [B|T]DD: `dotnet watch test -p EsBankAccount.sln`
 - To watch: `dotnet watch run -p EsBankAccount/EsBankAccount.fsproj`
 
-Editors:
-- [Vim](https://github.com/ionide/Ionide-vim)
-- [VSCode](https://marketplace.visualstudio.com/items?itemName=Ionide.Ionide-fsharp)
-- VisualStudio [Windows](https://visualstudio.microsoft.com/vs/community/) / [macOS](https://visualstudio.microsoft.com/vs/mac/)
+Editors: [Vim](https://github.com/ionide/Ionide-vim) / [VSCode](https://marketplace.visualstudio.com/items?itemName=Ionide.Ionide-fsharp) / [VS Windows](https://visualstudio.microsoft.com/vs/community/) / [VS macOS](https://visualstudio.microsoft.com/vs/mac/)
 
 ## Kata
 
