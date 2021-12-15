@@ -31,7 +31,7 @@ type Message =
 
 let closer =
     async {
-        do! TimeSpan.FromSeconds 4 |> Async.Sleep
+        do! TimeSpan.FromSeconds 4.0 |> Async.Sleep
         return Close
     }
 
