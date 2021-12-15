@@ -1,6 +1,5 @@
 name: Deploy to GitHub Pages
 
-# Run workflow on every push to the main branch
 on:
   push:
     branches: [ main ]
