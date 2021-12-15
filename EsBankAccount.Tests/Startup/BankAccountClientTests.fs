@@ -7,14 +7,16 @@ open Xunit
 open EsBankAccount.Startup
 open EsBankAccount.Startup.BankAccountClient
 
+// Startup tests are usually of the type integration
+
 let fakeAccountId () = string Guid.Empty
 
 [<Fact>]
 let ``Should deposit and then withdraw`` () =
     async {
         let accountId = fakeAccountId ()
-        do! deposit accountId 10m |> Async.Ignore
-        do! withdraw accountId 5m |> Async.Ignore
+        let! _depositResult = deposit accountId 10m
+        let! _withdrawalResult = withdraw accountId 5m
         let! account = ReadModelClient.readAccount accountId
         account.Transactions.Length =! 2
     }
