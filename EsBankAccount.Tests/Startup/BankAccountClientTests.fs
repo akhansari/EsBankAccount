@@ -15,6 +15,6 @@ let ``Should deposit and then withdraw`` () =
         let accountId = fakeAccountId ()
         do! deposit accountId 10m |> Async.Ignore
         do! withdraw accountId 5m |> Async.Ignore
-        let! account = ReadModelClient.getAccount accountId
+        let! account = ReadModelClient.readAccount accountId
         account.Transactions.Length =! 2
     }

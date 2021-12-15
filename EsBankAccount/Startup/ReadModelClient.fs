@@ -8,13 +8,13 @@ let mapTransaction dto : ReadModelDb.TransactionModel =
       Amount = dto.Amount
       Balance = dto.Balance }
 
-let getAccount accountId =
+let readAccount accountId =
     async {
         use conn = ReadModelDb.createReadConnection ()
         return! ReadModelDb.getAccount conn accountId
     }
 
-let getAccounts () =
+let readAccounts () =
     async {
         use conn = ReadModelDb.createReadConnection ()
         return! ReadModelDb.getAccounts conn
