@@ -13,6 +13,8 @@
     <Compile Include="Startup\BankAccountClient.fs" />
 
     <Compile Include="View\BulmaHelpers.fs" />
+
+    <Compile Include="View\Notify.fs" />
     <Compile Include="View\Main.fs" />
 
     <Compile Include="Program.fs" />
@@ -21,9 +23,9 @@
   <ItemGroup>
     <PackageReference Include="Bolero" Version="0.17.25" />
     <PackageReference Include="Bolero.Build" Version="0.17.25" />
-    <PackageReference Include="Equinox.MemoryStore" Version="3.0.4" />
+    <PackageReference Include="Equinox.MemoryStore" Version="3.0.5" />
     <PackageReference Include="FsCodec.SystemTextJson" Version="2.2.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.12" />
   </ItemGroup>
 
 </Project>

@@ -10,7 +10,7 @@ let btable attrs = table [ yield! attrs; css "table" ]
 let btableContainer attrs children =
     div [ yield! attrs; css "table-container" ] [ btable [] children ]
 
-let bfieldIco icon inputNode =
+let binputIcon icon inputNode =
     div [ css "field has-addons" ] [
         div [ css "control has-icons-left" ] [
             inputNode
@@ -20,7 +20,7 @@ let bfieldIco icon inputNode =
         ]
     ]
 
-let bfieldIcoBtn icon inputNode buttonNode =
+let binputIconButton icon inputNode buttonNode =
     div [ css "field has-addons" ] [
         div [ css "control has-icons-left" ] [
             inputNode
