@@ -2,25 +2,26 @@
 
 F# template/POC about Functional Event Sourcing, Onion Architecture and WebAssembly.
 
-For any issue or suggestion, please open an issue or a pull request.\
-Or open a discussion for questions, ideas, etc.
+Wanna file an issue? a suggestion? Please feel free to [create a new issue](https://github.com/akhansari/EsBankAccount/issues/new) and / or [a pull request](https://github.com/akhansari/EsBankAccount/compare).\
+Or [start a new discussion](https://github.com/akhansari/EsBankAccount/discussions/new) for questions, ideas, etc.
 
 ## Why?
 
 ### F#
 Empowers everyone to write succinct, robust and performant code.\
-It allows in addition to write backend (taking advantage of .Net ecosystem) and also frontend (transpiled to JS or compiled to Wasm) applications.
+It enables you to write backend (taking advantage of .Net ecosystem) as well as frontend (transpiled to JS or compiled to Wasm) applications.
 
 ### Functional Event Sourcing
-Fully embrace immutability and expressions besides ES benefits.
+Fully embrace immutability and expressions, in addition to other more traditional ES perks.
 
 ### Onion Architecture
 Leads to more maintainable applications since it emphasizes separation of concerns throughout the system.\
-It's even quite natural with F#, compositions and higher-order functions.
+It's even quite natural with F#, i.e. compositions and higher-order functions.
 
 ### WebAssembly
-Allows with minimal effort to create powerful UIs and back office apps.\
-For this demo the view is in the same project to allow it to be hosted on GitHub. But in production, it's often in a separate project and lifecycle.
+Facilitate the development of powerful UIs and back office apps with minimal effort.\
+Note that for the sake of simplicity in this demo, the view and the business logic have both been put in the same project in order to make this application "hostable" on GitHub. \
+When deployed to an actual real-world production environment, they are often located in separate projects with different lifecycles.
 
 ## Setup
 
@@ -32,12 +33,12 @@ Editors: [Vim](https://github.com/ionide/Ionide-vim) / [VSCode](https://marketpl
 
 ## Kata
 
-You can clone the `kata-start` branch and start practicing.\
+You can simply clone the `kata-start` branch and start practicing.\
 Follow the instructions in `BankAccountTests.fs` and `BankAccountTests.state.fs`.
 
 ## Decider
 
-Deciders should have at least an initial state and two functions:
+Deciders should have, at least, an initial state and two functions:
 
 - `evolve: 'State -> 'Event -> 'State`\
   Given the current state and what happened, evolve to a new state.
@@ -71,15 +72,17 @@ let ``close the account and withdraw the remaining amount`` () =
 ```
 
 There are two kinds of them:
-1. Test what is done (mandatory).\
-   We don't mind how we come up with the outcome, except the outcome has to be correct under the given condition.
-2. Test how it is done (optional).\
-   We are not concerned about the outcome. The only thing needed is to build the state in a particular way.
+1. Test what has been done (mandatory).
+   - We don't mind how we come up with the outcome. 
+   - But, we do need to make sure that the outcome has to be correct under the given condition.
+2. Test how it has been done (optional).
+   - We aren't too concerned about the outcome. 
+   - But, we need to build the state in a particular way.
 
 ### Decider Structure
 
 It's possible to organize the Decider into five sections.\
-So it will be easier to split it into separate files if it starts to grow.
+So it will make it easier to split the implementation into the relevant separate files, especially once it starts to get a little too big.
 
 |   | Section               | Filename
 |---|-----------------------|----------
@@ -91,21 +94,21 @@ So it will be easier to split it into separate files if it starts to grow.
 
 ### Decision Outcome
 
-Usually there is at least two kind of Deciders:
+There are usually, at least, two categories of Deciders:
 1. System `-> 'Event list`\
-   Silent, if nothing has happened then it will return an empty list. No need for validation.
+   Silent, if nothing has happened, then it will return an empty list. No need for validation.
 2. Frontal `-> Result<'Event list, 'Error>`\
    When validation is required. For instance called from an API.\
    Could also be `-> Validation<'Event list, 'Error list>`.
 
 ## Onion Architecture
 
-- Internal layers doesn't know about outside layers.
-- Domain is pure.
+- _Inner_ layers "aren't aware" of _outer_ layers.
+- Domain is pure (i.e. think functional programming 101).
 - App only has a reference to the domain.
 - Infra only has references to other infrastructures.
 - Startup has references to the App and the Infra. Infra are injected to the App.
-- We usually start to code from the inside to the right (output), then again from the inside to the left (input).
+- We usually start to code from the inside to the right (i.e. output), then again from the inside to the left (i.e. input).
 
 <img src="assets/onion.png" alt="onion architecture" />
 
