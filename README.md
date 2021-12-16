@@ -32,7 +32,7 @@ Editors: [Vim](https://github.com/ionide/Ionide-vim) / [VSCode](https://marketpl
 
 ## Kata
 
-You can clone the `kata-start` branch and start practicing.\
+You can simply clone the `kata-start` branch and start practicing.\
 Follow the instructions in `BankAccountTests.fs` and `BankAccountTests.state.fs`.
 
 ## Decider
@@ -73,10 +73,10 @@ let ``close the account and withdraw the remaining amount`` () =
 There are two kinds of them:
 1. Test what has been done (mandatory).
    - We don't mind how we come up with the outcome. 
-   - But we do need to make sure that the outcome has to be correct under the given condition.
+   - But, we do need to make sure that the outcome has to be correct under the given condition.
 2. Test how it has been done (optional).
-   - We are aren't too concerned about the outcome. 
-   - But we need to build the state in a particular way.
+   - We aren't too concerned about the outcome. 
+   - But, we need to build the state in a particular way.
 
 ### Decider Structure
 
