@@ -12,7 +12,7 @@ Empowers everyone to write succinct, robust and performant code.\
 It enables you to write backend (taking advantage of .Net ecosystem) as well as frontend (transpiled to JS or compiled to Wasm) applications.
 
 ### Functional Event Sourcing
-Fully embrace immutability and expressions besides ES benefits.
+Fully embrace immutability and expressions, in addition to other more traditional ES perks.
 
 ### Onion Architecture
 Leads to more maintainable applications since it emphasizes separation of concerns throughout the system.\
@@ -20,7 +20,8 @@ It's even quite natural with F#, i.e. compositions and higher-order functions.
 
 ### WebAssembly
 Facilitate the development of powerful UIs and back office apps with minimal effort.\
-In this demo, the view is in the same project to allow it to be hosted on GitHub. But when deployed to an actual real-world production environment, it is often located in a separate project and, lifecycle.
+Note that for the sake of simplicity in this demo, the view and the business logic have both been put in the same project in order to make this application "hostable" on GitHub. \
+When deployed to an actual real-world production environment, they are often located in separate projects with different lifecycles.
 
 ## Setup
 
