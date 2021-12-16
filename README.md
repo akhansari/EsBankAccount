@@ -95,19 +95,19 @@ So it will make it easier to split the implementation into the relevant separate
 
 There are usually, at least, two categories of Deciders:
 1. System `-> 'Event list`\
-   Silent, if nothing has happened then it will return an empty list. No need for validation.
+   Silent, if nothing has happened, then it will return an empty list. No need for validation.
 2. Frontal `-> Result<'Event list, 'Error>`\
    When validation is required. For instance called from an API.\
    Could also be `-> Validation<'Event list, 'Error list>`.
 
 ## Onion Architecture
 
-- _Inner_ layers "aren't aware" about _outer_ layers.
+- _Inner_ layers "aren't aware" of _outer_ layers.
 - Domain is pure (i.e. think functional programming 101).
 - App only has a reference to the domain.
 - Infra only has references to other infrastructures.
 - Startup has references to the App and the Infra. Infra are injected to the App.
-- We usually start to code from the inside to the right (output), then again from the inside to the left (input).
+- We usually start to code from the inside to the right (i.e. output), then again from the inside to the left (i.e. input).
 
 <img src="assets/onion.png" alt="onion architecture" />
 
