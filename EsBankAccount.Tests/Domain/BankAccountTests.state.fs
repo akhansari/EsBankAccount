@@ -32,7 +32,7 @@ let ``make a withdrawal and calculate the balance`` () =
 [<Fact>]
 let ``calculate the balance of withdrawals and deposits`` () =
     spec {
-        GivenEvents
+        Given
             [ Deposited { Amount =  50m; Date = DateTime.MinValue }
               Withdrawn { Amount =  10m; Date = DateTime.MinValue }
               Withdrawn { Amount =   5m; Date = DateTime.MinValue }

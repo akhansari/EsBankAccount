@@ -37,7 +37,7 @@ let ``when withdrawing, the threshold limit should not be exceeded`` () =
             [ Withdrawn { Amount = 100m; Date = DateTime.MinValue } ]
         When
             ( Withdraw (1m, DateTime.MinValue, Some thresholdLimit) )
-        ThenError
+        Then
             ( ThresholdExceeded (-501m, thresholdLimit) |> WithdrawalError )
     }
 
@@ -57,7 +57,11 @@ let ``close the account and withdraw the remaining amount`` () =
             [ Deposited { Amount = 100m; Date = DateTime.MinValue } ]
         When
             ( Close DateTime.MinValue )
-        Then
+        Then // assert scenario
+            ( function Ok events -> Assert.NotEmpty events | _ -> () )
+        Then // true or false scenario
+            ( function Ok [ Withdrawn _; Closed _ ] -> true | _ -> false )
+        Then // equality then structural diff scenario
             [ Withdrawn { Amount = 100m; Date = DateTime.MinValue }
               Closed {| ClosedOn = DateTime.MinValue |} ]
     }
@@ -69,7 +73,7 @@ let ``negative balance cannot be closed`` () =
             [ Withdrawn { Amount = 50m; Date = DateTime.MinValue } ]
         When
             ( Close DateTime.MinValue )
-        ThenError
+        Then
             ( BalanceIsNegative -50m |> ClosingError )
     }
 
@@ -80,10 +84,10 @@ let ``cannot deposit or withdraw if the account is already closed`` () =
             [ Closed {| ClosedOn = DateTime.MinValue |} ]
         When
             ( Deposit (10m, DateTime.MinValue) )
-        ThenError
-            AlreadyClosed
+        Then
+            ( AlreadyClosed )
         When
             ( Withdraw (10m, DateTime.MinValue, None) )
-        ThenError
-            AlreadyClosed
+        Then
+            ( AlreadyClosed )
     }
