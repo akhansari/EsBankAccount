@@ -26,6 +26,16 @@ type DeciderStateSpecList<'State, 'Command, 'Event when 'State: equality>
             Diffract.Assert (expected, state)
         state
 
+    [<CustomOperation "Then">]
+    member _.Then (state, check: 'State -> bool) =
+        Diffract.Assert (true, check state)
+        state
+
+    [<CustomOperation "Then">]
+    member _.Then (state, check: 'State -> unit) =
+        check state
+        state
+
 type DeciderStateSpecResult<'State, 'Command, 'Event, 'Error when 'State: equality>
     (initialState: 'State
     , evolve: 'State -> 'Event -> 'State
@@ -39,8 +49,8 @@ type DeciderStateSpecResult<'State, 'Command, 'Event, 'Error when 'State: equali
     member _.Given (_, newState: 'State) =
         newState
 
-    [<CustomOperation "GivenEvents">]
-    member _.GivenEvents (state, events) =
+    [<CustomOperation "Given">]
+    member _.Given (state, events) =
         List.fold evolve state events
 
     [<CustomOperation "When">]
@@ -53,4 +63,14 @@ type DeciderStateSpecResult<'State, 'Command, 'Event, 'Error when 'State: equali
     member _.Then (state, expected: 'State) =
         if not (expected = state) then
             Diffract.Assert (expected, state)
+        state
+
+    [<CustomOperation "Then">]
+    member _.Then (state, check: 'State -> bool) =
+        Diffract.Assert (true, check state)
+        state
+
+    [<CustomOperation "Then">]
+    member _.Then (state, check: 'State -> unit) =
+        check state
         state

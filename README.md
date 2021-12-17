@@ -65,7 +65,12 @@ let ``close the account and withdraw the remaining amount`` () =
             [ Deposited { Amount = 100m; Date = DateTime.MinValue } ]
         When  // command
             ( Close DateTime.MinValue )
-        Then  // what should happen
+        // what should happen
+        Then // assert scenario
+            ( function Ok events -> Assert.NotEmpty events | _ -> () )
+        Then // true or false scenario
+            ( function Ok [ Withdrawn _; Closed _ ] -> true | _ -> false )
+        Then // equality then structural diff scenario
             [ Withdrawn { Amount = 100m; Date = DateTime.MinValue }
               Closed DateTime.MinValue ]
     }
