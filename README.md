@@ -73,33 +73,38 @@ let ``close the account and withdraw the remaining amount`` () =
 
 There are two kinds of them:
 1. Test what has been done (mandatory).
-   - We don't mind how we come up with the outcome. 
+   - We don't mind how we come up with the outcome.
    - But, we do need to make sure that the outcome has to be correct under the given condition.
 2. Test how it has been done (optional).
-   - We aren't too concerned about the outcome. 
+   - We aren't too concerned about the outcome.
    - But, we need to build the state in a particular way.
 
 ### Decider Structure
 
-It's possible to organize the Decider into five sections.\
-So it will make it easier to split the implementation into the relevant separate files, especially once it starts to get a little too big.
+It's possible to organize the Decider into five sections:
+1. types
+1. state logic
+1. decision logic
+1. validation (optional)
+1. decision pipeline
 
-|   | Section               | Filename
-|---|-----------------------|----------
-| 1 | types                 | BankAccount.types.fs
-| 2 | state logic           | BankAccount.state.fs
-| 3 | decision logic        | BankAccount.decisions.fs (could be one file per decision)
-| 4 | validation (optional) | BankAccount.validations.fs
-| 5 | decision pipeline     | BankAccount.pipeline.fs
+Keep it in one file until it hurts and then decide the best split(s) at the last responsible moment.
 
 ### Decision Outcome
 
 There are usually, at least, two categories of Deciders:
 1. System `-> 'Event list`\
    Silent, if nothing has happened, then it will return an empty list. No need for validation.
-2. Frontal `-> Result<'Event list, 'Error>`\
+1. Frontal `-> Result<'Event list, 'Error>`\
    When validation is required. For instance called from an API.\
    Could also be `-> Validation<'Event list, 'Error list>`.
+
+### Validations
+
+We could have different types of validation in each layer:
+1. Domain: Enforce constraints on new events, business validation.
+1. Application: Anti-corruption, validate infrastructures data.
+1. Startup: Secure and validate data shape.
 
 ## Onion Architecture
 
@@ -120,3 +125,4 @@ There are usually, at least, two categories of Deciders:
 - [Expectations for an Event Store](https://github.com/ylorph/RandomThoughts/blob/master/2019.08.09_expectations_for_an_event_store.md) by Yves Lorphelin
 - [Effective F#, tips and tricks](https://gist.github.com/swlaschin/31d5a0a2c4478e82e3ed60d653c0206b) by Scott Wlaschin
 - [Equinox](https://github.com/jet/equinox) by Jet and Ruben Bartelink
+- [Event Sourcing in .NET tutorials](https://github.com/oskardudycz/EventSourcing.NetCore) by Oskar Dudycz

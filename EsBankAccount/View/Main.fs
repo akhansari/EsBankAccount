@@ -85,14 +85,14 @@ let update message model : Model * Cmd<Message> =
 
     | GetAccountInfo, AccountView accountModel ->
         model,
-        Cmd.OfAsync.perform ReadModelClient.getAccount accountModel.AccountId GotAccountInfo
+        Cmd.OfAsync.perform ReadModelClient.readAccount accountModel.AccountId GotAccountInfo
     | GotAccountInfo info, AccountView accountModel ->
         { accountModel with Info = info } |> updateAccount model,
         Cmd.none
 
     | SwitchAccount, AccountView _ ->
         { Model.initial with Events = model.Events },
-        Cmd.OfAsync.perform ReadModelClient.getAccounts () SetAccounts
+        Cmd.OfAsync.perform ReadModelClient.readAccounts () SetAccounts
 
     | SetTransactionAmount amount, AccountView accountModel ->
         { accountModel with TransactionAmount = Some amount } |> updateAccount model,
