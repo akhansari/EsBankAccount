@@ -25,7 +25,7 @@ When deployed to an actual real-world production environment, they are often loc
 
 ## Setup
 
-- Install [.Net SDK 5.0](https://dotnet.microsoft.com/download/dotnet/5.0) (Linux / Windows / macOS)
+- Install .Net SDK [5.0](https://dotnet.microsoft.com/download/dotnet/5.0) and [6.0](https://dotnet.microsoft.com/download/dotnet/6.0) (Linux / Windows / macOS)
 - To [B|T]DD: `dotnet watch test -p EsBankAccount.sln`
 - To watch: `dotnet watch run -p EsBankAccount/EsBankAccount.fsproj`
 
@@ -38,7 +38,7 @@ Follow the instructions in `BankAccountTests.fs` and `BankAccountTests.state.fs`
 
 ## Decider
 
-Deciders should have, at least, an initial state and two functions:
+[Deciders](https://thinkbeforecoding.com/post/2021/12/17/functional-event-sourcing-decider) should have, at least, an initial state and two functions:
 
 - `evolve: 'State -> 'Event -> 'State`\
   Given the current state and what happened, evolve to a new state.
