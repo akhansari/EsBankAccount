@@ -1,8 +1,8 @@
 namespace EsBankAccount.Tests.Domain
 
-open Swensen.Unquote
+open Diffract
 
-type DeciderStateSpecList<'State, 'Command, 'Event>
+type DeciderStateSpecList<'State, 'Command, 'Event when 'State: equality>
     (initialState: 'State
     , evolve: 'State -> 'Event -> 'State
     , decide: 'Command -> 'State -> 'Event list)
@@ -21,11 +21,12 @@ type DeciderStateSpecList<'State, 'Command, 'Event>
         |> List.fold evolve state
 
     [<CustomOperation "Then">]
-    member _.Then (state, expected) =
-        test <@ state = expected @>
+    member _.Then (state, expected: 'State) =
+        if not (expected = state) then
+            Diffract.Assert (expected, state)
         state
 
-type DeciderStateSpecResult<'State, 'Command, 'Event, 'Error>
+type DeciderStateSpecResult<'State, 'Command, 'Event, 'Error when 'State: equality>
     (initialState: 'State
     , evolve: 'State -> 'Event -> 'State
     , decide: 'Command -> 'State -> Result<'Event list, 'Error>)
@@ -35,7 +36,7 @@ type DeciderStateSpecResult<'State, 'Command, 'Event, 'Error>
         initialState
 
     [<CustomOperation "Given">]
-    member _.Given (_, newState) =
+    member _.Given (_, newState: 'State) =
         newState
 
     [<CustomOperation "GivenEvents">]
@@ -49,6 +50,7 @@ type DeciderStateSpecResult<'State, 'Command, 'Event, 'Error>
         | Error _   -> state
 
     [<CustomOperation "Then">]
-    member _.Then (state, expected) =
-        test <@ state = expected @>
+    member _.Then (state, expected: 'State) =
+        if not (expected = state) then
+            Diffract.Assert (expected, state)
         state
