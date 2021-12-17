@@ -35,7 +35,7 @@ module private Client =
     let errorMessage = function
         | BankAccount.AlreadyClosed ->
             "Account already closed"
-        | BankAccount.WithdrawingError (BankAccount.ThresholdExceeded _) ->
+        | BankAccount.WithdrawalError (BankAccount.ThresholdExceeded _) ->
             "Threshold exceeded, withdrawal denied"
         | BankAccount.ClosingError (BankAccount.BalanceIsNegative _) ->
             "Balance is negative, closing denied"

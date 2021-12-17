@@ -79,6 +79,9 @@ There are two kinds of them:
    - We aren't too concerned about the outcome.
    - But, we need to build the state in a particular way.
 
+It should be noted that the BDD DSL style brings more readability and neat helpers but it isn't mandatory.\
+In your test files you can have different kind of unit tests. For instance a test could be as simple as [this](https://github.com/thinkbeforecoding/UnoCore/blob/solution/Uno.Tests/Tests.fs).
+
 ### Decider Structure
 
 It's possible to organize the Decider into five sections:

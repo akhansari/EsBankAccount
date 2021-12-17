@@ -38,7 +38,7 @@ let ``when withdrawing, the threshold limit should not be exceeded`` () =
         When
             ( Withdraw (1m, DateTime.MinValue, Some thresholdLimit) )
         ThenError
-            ( ThresholdExceeded (-501m, thresholdLimit) |> WithdrawingError )
+            ( ThresholdExceeded (-501m, thresholdLimit) |> WithdrawalError )
     }
 
 [<Fact>]

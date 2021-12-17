@@ -1,7 +1,6 @@
 ﻿module EsBankAccount.Tests.Startup.BankAccountClientTests
 
 open System
-open Swensen.Unquote
 open Xunit
 
 open EsBankAccount.Startup
@@ -18,5 +17,5 @@ let ``Should deposit and then withdraw`` () =
         let! _depositResult = deposit accountId 10m
         let! _withdrawalResult = withdraw accountId 5m
         let! account = ReadModelClient.readAccount accountId
-        account.Transactions.Length =! 2
+        Assert.Equal (2, account.Transactions.Length)
     }

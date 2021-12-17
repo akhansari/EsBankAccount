@@ -60,8 +60,8 @@ let private close date state =
 
 type Error =
     | AlreadyClosed
-    | WithdrawingError  of WithdrawingError
-    | ClosingError      of ClosingError
+    | WithdrawalError  of WithdrawingError
+    | ClosingError     of ClosingError
 and WithdrawingError =
     | ThresholdExceeded of upcomingBalance: Amount * thresholdLimit: Amount
 and ClosingError =
@@ -78,7 +78,7 @@ module private Check =
         let thresholdLimit thresholdLimit amount state =
             match thresholdLimit with
             | Some thresholdLimit when state.Balance - amount < thresholdLimit ->
-                ThresholdExceeded (state.Balance - amount, thresholdLimit) |> WithdrawingError |> Error
+                ThresholdExceeded (state.Balance - amount, thresholdLimit) |> WithdrawalError |> Error
             | _ ->
                 Ok ()
 
