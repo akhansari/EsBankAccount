@@ -2,10 +2,7 @@
   "profiles": {
     "EsBankAccount": {
       "commandName": "Project",
-      "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
+      "launchBrowser": false,
       "applicationUrl": "http://localhost:5000"
     }
   }
