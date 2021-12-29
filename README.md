@@ -25,9 +25,9 @@ When deployed to an actual real-world production environment, they are often loc
 
 ## Setup
 
-- Install .Net SDK [5.0](https://dotnet.microsoft.com/download/dotnet/5.0) and [6.0](https://dotnet.microsoft.com/download/dotnet/6.0) (Linux / Windows / macOS)
-- To [B|T]DD: `dotnet watch test -p EsBankAccount.sln`
-- To watch: `dotnet watch run -p EsBankAccount/EsBankAccount.fsproj`
+- Install .Net SDK [6.0](https://dotnet.microsoft.com/download/dotnet/6.0) (Linux / Windows / macOS)
+- To [B|T]DD: `dotnet watch test --project EsBankAccount.sln`
+- To watch: `dotnet watch run --project EsBankAccount/EsBankAccount.fsproj`
 
 Editors: [Vim](https://github.com/ionide/Ionide-vim) / [VSCode](https://marketplace.visualstudio.com/items?itemName=Ionide.Ionide-fsharp) / [VS Windows](https://visualstudio.microsoft.com/vs/community/) / [VS macOS](https://visualstudio.microsoft.com/vs/mac/)
 
