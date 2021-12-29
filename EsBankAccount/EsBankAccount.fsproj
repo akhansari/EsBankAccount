@@ -21,11 +21,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bolero" Version="0.17.25" />
-    <PackageReference Include="Bolero.Build" Version="0.17.25" />
+    <PackageReference Include="Bolero" Version="0.18.16" />
+    <PackageReference Include="Bolero.Build" Version="0.18.16" />
     <PackageReference Include="Equinox.MemoryStore" Version="3.0.5" />
     <PackageReference Include="FsCodec.SystemTextJson" Version="2.2.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.12" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.1" />
   </ItemGroup>
 
 </Project>
